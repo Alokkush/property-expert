@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.firebaseAuth) {
         console.error("Firebase Auth not initialized");
         showErrorMessage('Authentication system not initialized. Please refresh the page.');
+        redirectToLogin();
         return;
     }
     
@@ -31,14 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('auth-buttons').classList.add('d-none');
             document.getElementById('user-info').classList.remove('d-none');
             
-            // Check if user is admin (in a real app, this would be checked against a database)
-            // For now, we'll assume the first user or a specific email is admin
-            // In a production app, you would have a proper admin role system
+            // Check if user is admin
             checkAdminAccess(user);
         } else {
             // User is not authenticated, redirect to login
             console.log("User not authenticated, redirecting to login");
-            window.location.href = 'index.html';
+            redirectToLogin();
         }
     });
     
@@ -128,17 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Redirect to login page
+function redirectToLogin() {
+    window.location.href = 'index.html';
+}
+
 // Check if user has admin access
 function checkAdminAccess(user) {
-    // In a real application, you would check against a database of admin users
-    // For this demo, we'll assume a specific email is the admin
-    // You could also check if the user's UID matches a known admin UID
+    // List of admin emails
+    const adminEmails = [
+        "admin@propertyexpert.com",
+        "alokkushwaha78600@gmail.com",
+        "admin@gmail.com"
+    ];
     
-    // For demonstration purposes, let's assume the admin email is "admin@propertyexpert.com"
-    // Or you could make the first user (or a specific user) the admin
-    
-    // Simple check for demo - in production, use a proper admin role system
-    if (user.email === "admin@propertyexpert.com" || user.email === "alokkushwaha78600@gmail.com") {
+    // Check if user's email is in the admin list
+    if (adminEmails.includes(user.email)) {
         console.log("Admin access granted");
         loadAdminData();
     } else {
@@ -167,8 +171,8 @@ function checkForExistingAdmins(currentUser) {
         })
         .catch(error => {
             console.error("Error checking for existing users:", error);
-            // Fallback: allow access if there's an error
-            loadAdminData();
+            // Redirect to home page if there's an error
+            redirectToLogin();
         });
 }
 
@@ -190,7 +194,8 @@ function makeUserAdmin(user) {
         })
         .catch(error => {
             console.error("Error making user admin:", error);
-            loadAdminData(); // Still load data even if we can't set admin status
+            // Redirect to home page if there's an error
+            redirectToLogin();
         });
 }
 
@@ -205,18 +210,27 @@ function checkIfUserIsAdmin(user) {
                     loadAdminData();
                 } else {
                     console.log("User is not admin, redirecting");
-                    window.location.href = 'index.html';
+                    showErrorMessage('Access denied. Admin privileges required.');
+                    setTimeout(() => {
+                        redirectToLogin();
+                    }, 3000);
                 }
             } else {
                 // User document doesn't exist, redirect
                 console.log("User document not found, redirecting");
-                window.location.href = 'index.html';
+                showErrorMessage('Access denied. User not found.');
+                setTimeout(() => {
+                    redirectToLogin();
+                }, 3000);
             }
         })
         .catch(error => {
             console.error("Error checking user admin status:", error);
-            // Fallback: redirect to home page
-            window.location.href = 'index.html';
+            // Redirect to home page
+            showErrorMessage('Access denied. Error checking permissions.');
+            setTimeout(() => {
+                redirectToLogin();
+            }, 3000);
         });
 }
 

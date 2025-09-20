@@ -64,7 +64,16 @@ property-expert/
 1. Clone or download this repository
 2. Open `index.html` in your web browser to view the application
 3. Sign up for an account to start adding properties
-4. For admin access, sign up with the email "admin@propertyexpert.com" or "alokkushwaha78600@gmail.com"
+4. For admin access, sign up with one of the following emails:
+   - admin@propertyexpert.com
+   - alokkushwaha78600@gmail.com
+   - admin@gmail.com (password: admin123)
+
+### Admin Dashboard Access
+1. Click the "Admin" button in the navigation bar (only visible to admin users)
+2. If you're not logged in, you'll be redirected to the login page
+3. After successful authentication with admin credentials, you'll be granted access to the admin dashboard
+4. The dashboard displays property registration analytics and system statistics
 
 ### Firebase Setup
 To deploy this application with full functionality, follow these steps:
@@ -179,7 +188,12 @@ The admin dashboard provides analytics and statistics for system administrators:
 - **Recent Properties Table**: List of recently added properties with owner information
 
 ### Access
-- Admin access is granted to users with specific emails ("admin@propertyexpert.com" or "alokkushwaha78600@gmail.com")
+- Admin access is granted to users with specific emails:
+  - admin@propertyexpert.com
+  - alokkushwaha78600@gmail.com
+  - admin@gmail.com (password: admin123)
+- The admin button only appears for authenticated admin users
+- Non-admin users attempting to access the dashboard directly will be redirected to the home page
 - In a production environment, admin status would be managed through a proper role system in the database
 
 ## 🔧 Technical Implementation

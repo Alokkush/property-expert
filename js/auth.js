@@ -42,12 +42,15 @@ function showAuthUI() {
 
 // Check if user is admin
 function checkAdminStatus(user) {
-    // In a real application, you would check against a database of admin users
-    // For this demo, we'll check if the user's email matches the admin email
-    // You could also check if the user's UID matches a known admin UID
+    // List of admin emails
+    const adminEmails = [
+        "admin@propertyexpert.com",
+        "alokkushwaha78600@gmail.com",
+        "admin@gmail.com"
+    ];
     
-    // Simple check for demo - in production, use a proper admin role system
-    if (user.email === "admin@propertyexpert.com" || user.email === "alokkushwaha78600@gmail.com") {
+    // Check if user's email is in the admin list
+    if (adminEmails.includes(user.email)) {
         if (adminBtn) {
             adminBtn.style.display = 'inline-block';
         }

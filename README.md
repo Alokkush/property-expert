@@ -67,7 +67,7 @@ property-expert/
 4. For admin access, sign up with one of the following emails:
    - admin@propertyexpert.com
    - alokkushwaha78600@gmail.com
-   - admin@gmail.com (password: admin123)
+   - admin@gmail.com (Note: Use a strong, unique password as "admin123" is commonly compromised)
 
 ### Admin Dashboard Access
 1. Click the "Admin" button in the navigation bar (only visible to admin users)
@@ -191,7 +191,7 @@ The admin dashboard provides analytics and statistics for system administrators:
 - Admin access is granted to users with specific emails:
   - admin@propertyexpert.com
   - alokkushwaha78600@gmail.com
-  - admin@gmail.com (password: admin123)
+  - admin@gmail.com (Note: Use a strong, unique password as "admin123" is commonly compromised)
 - The admin button only appears for authenticated admin users
 - Non-admin users attempting to access the dashboard directly will be redirected to the home page
 - In a production environment, admin status would be managed through a proper role system in the database

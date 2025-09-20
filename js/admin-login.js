@@ -4,12 +4,8 @@
 const adminLoginForm = document.getElementById('admin-login-form');
 const adminLoginError = document.getElementById('admin-login-error');
 
-// Admin credentials (in a real application, this would be handled securely on the server)
-const adminCredentials = [
-    { email: "admin@propertyexpert.com", password: "admin123" },
-    { email: "alokkushwaha78600@gmail.com", password: "admin123" },
-    { email: "admin@gmail.com", password: "admin123" }
-];
+// Note: In a production environment, credentials should never be stored in client-side code
+// This is only for demonstration purposes
 
 // Check authentication state
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,22 +63,10 @@ if (adminLoginForm) {
             })
             .catch(error => {
                 console.error("Firebase authentication error:", error);
-                // If Firebase auth fails, check against hardcoded credentials
-                if (validateAdminCredentials(email, password)) {
-                    // For demo purposes, we'll allow login with hardcoded credentials
-                    // In a real application, all authentication should be handled by Firebase
-                    adminLoginError.classList.add('d-none');
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    showLoginError('Invalid email or password.');
-                }
+                // Display Firebase error message to user
+                showLoginError('Login failed: ' + error.message);
             });
     });
-}
-
-// Validate admin credentials against hardcoded list
-function validateAdminCredentials(email, password) {
-    return adminCredentials.some(cred => cred.email === email && cred.password === password);
 }
 
 // Show login error

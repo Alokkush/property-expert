@@ -29,6 +29,8 @@ function showUserUI(user) {
     authButtons.classList.add('d-none');
     userInfo.classList.remove('d-none');
     userEmail.textContent = user.email;
+    // Check if user is admin when showing user UI
+    checkAdminStatus(user);
 }
 
 // Show authentication buttons UI

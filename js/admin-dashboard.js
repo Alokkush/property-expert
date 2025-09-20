@@ -11,6 +11,13 @@ const recentPropertiesTable = document.getElementById('recent-properties-table')
 let locationChart = null;
 let timeChart = null;
 
+// List of admin emails
+const ADMIN_EMAILS = [
+    "admin@propertyexpert.com",
+    "alokkushwaha78600@gmail.com",
+    "admin@gmail.com"
+];
+
 // Check authentication state and ensure user is admin
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Admin dashboard loaded");
@@ -28,9 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             console.log("User authenticated:", user.email);
             // Show user info
-            document.getElementById('user-email').textContent = user.email;
-            document.getElementById('auth-buttons').classList.add('d-none');
-            document.getElementById('user-info').classList.remove('d-none');
+            if (document.getElementById('user-email')) {
+                document.getElementById('user-email').textContent = user.email;
+            }
+            if (document.getElementById('auth-buttons')) {
+                document.getElementById('auth-buttons').classList.add('d-none');
+            }
+            if (document.getElementById('user-info')) {
+                document.getElementById('user-info').classList.remove('d-none');
+            }
             
             // Check if user is admin
             checkAdminAccess(user);
@@ -45,14 +58,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            firebaseAuth.signOut()
-                .then(() => {
-                    console.log('User logged out successfully');
-                    window.location.href = 'index.html';
-                })
-                .catch(error => {
-                    console.error('Error logging out:', error);
-                });
+            if (window.firebaseAuth) {
+                firebaseAuth.signOut()
+                    .then(() => {
+                        console.log('User logged out successfully');
+                        window.location.href = 'index.html';
+                    })
+                    .catch(error => {
+                        console.error('Error logging out:', error);
+                    });
+            }
         });
     }
     
@@ -66,24 +81,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value;
             const loginError = document.getElementById('login-error');
             
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    // Clear any previous errors
-                    loginError.classList.add('d-none');
-                    
-                    // Close modal
-                    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                    loginModal.hide();
-                    
-                    // Reset form
-                    loginForm.reset();
-                    
-                    console.log('User logged in successfully');
-                })
-                .catch(error => {
-                    loginError.textContent = error.message;
+            if (window.firebaseAuth) {
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        // Clear any previous errors
+                        if (loginError) {
+                            loginError.classList.add('d-none');
+                        }
+                        
+                        // Close modal
+                        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                        if (loginModal) {
+                            loginModal.hide();
+                        }
+                        
+                        // Reset form
+                        loginForm.reset();
+                        
+                        console.log('User logged in successfully');
+                    })
+                    .catch(error => {
+                        if (loginError) {
+                            loginError.textContent = error.message;
+                            loginError.classList.remove('d-none');
+                        }
+                    });
+            } else {
+                if (loginError) {
+                    loginError.textContent = 'Authentication system not initialized. Please refresh the page.';
                     loginError.classList.remove('d-none');
-                });
+                }
+            }
         });
     }
     
@@ -100,29 +128,44 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Check if passwords match
             if (password !== confirmPassword) {
-                signupError.textContent = 'Passwords do not match';
-                signupError.classList.remove('d-none');
+                if (signupError) {
+                    signupError.textContent = 'Passwords do not match';
+                    signupError.classList.remove('d-none');
+                }
                 return;
             }
             
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    // Clear any previous errors
-                    signupError.classList.add('d-none');
-                    
-                    // Close modal
-                    const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-                    signupModal.hide();
-                    
-                    // Reset form
-                    signupForm.reset();
-                    
-                    console.log('User signed up successfully');
-                })
-                .catch(error => {
-                    signupError.textContent = error.message;
+            if (window.firebaseAuth) {
+                firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        // Clear any previous errors
+                        if (signupError) {
+                            signupError.classList.add('d-none');
+                        }
+                        
+                        // Close modal
+                        const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                        if (signupModal) {
+                            signupModal.hide();
+                        }
+                        
+                        // Reset form
+                        signupForm.reset();
+                        
+                        console.log('User signed up successfully');
+                    })
+                    .catch(error => {
+                        if (signupError) {
+                            signupError.textContent = error.message;
+                            signupError.classList.remove('d-none');
+                        }
+                    });
+            } else {
+                if (signupError) {
+                    signupError.textContent = 'Authentication system not initialized. Please refresh the page.';
                     signupError.classList.remove('d-none');
-                });
+                }
+            }
         });
     }
 });
@@ -134,15 +177,8 @@ function redirectToLogin() {
 
 // Check if user has admin access
 function checkAdminAccess(user) {
-    // List of admin emails
-    const adminEmails = [
-        "admin@propertyexpert.com",
-        "alokkushwaha78600@gmail.com",
-        "admin@gmail.com"
-    ];
-    
     // Check if user's email is in the admin list
-    if (adminEmails.includes(user.email)) {
+    if (ADMIN_EMAILS.includes(user.email)) {
         console.log("Admin access granted");
         loadAdminData();
     } else {
@@ -160,26 +196,34 @@ function checkForExistingAdmins(currentUser) {
     // For this demo, we'll assume the first user is the admin
     
     // Check if this is the first user by checking if any users exist
-    firebaseDb.collection('users')
-        .limit(1)
-        .get()
-        .then(snapshot => {
-            if (snapshot.empty) {
-                // This is the first user, make them admin
-                makeUserAdmin(currentUser);
-            } else {
-                // Check if current user is in the admins collection
-                checkIfUserIsAdmin(currentUser);
-            }
-        })
-        .catch(error => {
-            console.error("Error checking for existing users:", error);
-            // Redirect to admin login page if there's an error
-            showErrorMessage('Access denied. Admin privileges required.');
-            setTimeout(() => {
-                redirectToLogin();
-            }, 3000);
-        });
+    if (window.firebaseDb) {
+        firebaseDb.collection('users')
+            .limit(1)
+            .get()
+            .then(snapshot => {
+                if (snapshot.empty) {
+                    // This is the first user, make them admin
+                    makeUserAdmin(currentUser);
+                } else {
+                    // Check if current user is in the admins collection
+                    checkIfUserIsAdmin(currentUser);
+                }
+            })
+            .catch(error => {
+                console.error("Error checking for existing users:", error);
+                // Redirect to admin login page if there's an error
+                showErrorMessage('Access denied. Admin privileges required.');
+                setTimeout(() => {
+                    redirectToLogin();
+                }, 3000);
+            });
+    } else {
+        console.error("Firebase DB not initialized");
+        showErrorMessage('Database not initialized. Please refresh the page.');
+        setTimeout(() => {
+            redirectToLogin();
+        }, 3000);
+    }
 }
 
 // Make a user an admin
@@ -193,54 +237,70 @@ function makeUserAdmin(user) {
     };
     
     // Save user data
-    firebaseDb.collection('users').doc(user.uid).set(userData)
-        .then(() => {
-            console.log("User made admin");
-            loadAdminData();
-        })
-        .catch(error => {
-            console.error("Error making user admin:", error);
-            // Redirect to admin login page if there's an error
-            showErrorMessage('Access denied. Admin privileges required.');
-            setTimeout(() => {
-                redirectToLogin();
-            }, 3000);
-        });
+    if (window.firebaseDb) {
+        firebaseDb.collection('users').doc(user.uid).set(userData)
+            .then(() => {
+                console.log("User made admin");
+                loadAdminData();
+            })
+            .catch(error => {
+                console.error("Error making user admin:", error);
+                // Redirect to admin login page if there's an error
+                showErrorMessage('Access denied. Admin privileges required.');
+                setTimeout(() => {
+                    redirectToLogin();
+                }, 3000);
+            });
+    } else {
+        console.error("Firebase DB not initialized");
+        showErrorMessage('Database not initialized. Please refresh the page.');
+        setTimeout(() => {
+            redirectToLogin();
+        }, 3000);
+    }
 }
 
 // Check if current user is an admin
 function checkIfUserIsAdmin(user) {
-    firebaseDb.collection('users').doc(user.uid).get()
-        .then(doc => {
-            if (doc.exists) {
-                const userData = doc.data();
-                if (userData.isAdmin) {
-                    console.log("User is admin");
-                    loadAdminData();
+    if (window.firebaseDb) {
+        firebaseDb.collection('users').doc(user.uid).get()
+            .then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    if (userData.isAdmin) {
+                        console.log("User is admin");
+                        loadAdminData();
+                    } else {
+                        console.log("User is not admin, redirecting");
+                        showErrorMessage('Access denied. Admin privileges required.');
+                        setTimeout(() => {
+                            redirectToLogin();
+                        }, 3000);
+                    }
                 } else {
-                    console.log("User is not admin, redirecting");
-                    showErrorMessage('Access denied. Admin privileges required.');
+                    // User document doesn't exist, redirect
+                    console.log("User document not found, redirecting");
+                    showErrorMessage('Access denied. User not found.');
                     setTimeout(() => {
                         redirectToLogin();
                     }, 3000);
                 }
-            } else {
-                // User document doesn't exist, redirect
-                console.log("User document not found, redirecting");
-                showErrorMessage('Access denied. User not found.');
+            })
+            .catch(error => {
+                console.error("Error checking user admin status:", error);
+                // Redirect to admin login page
+                showErrorMessage('Access denied. Error checking permissions.');
                 setTimeout(() => {
                     redirectToLogin();
                 }, 3000);
-            }
-        })
-        .catch(error => {
-            console.error("Error checking user admin status:", error);
-            // Redirect to admin login page
-            showErrorMessage('Access denied. Error checking permissions.');
-            setTimeout(() => {
-                redirectToLogin();
-            }, 3000);
-        });
+            });
+    } else {
+        console.error("Firebase DB not initialized");
+        showErrorMessage('Database not initialized. Please refresh the page.');
+        setTimeout(() => {
+            redirectToLogin();
+        }, 3000);
+    }
 }
 
 // Load all admin data
@@ -262,56 +322,88 @@ function loadStatistics() {
     console.log("Loading statistics");
     
     // Load total properties count
-    firebaseDb.collection('properties').get()
-        .then(snapshot => {
-            const totalProperties = snapshot.size;
-            totalPropertiesElement.textContent = totalProperties;
-            
-            // Calculate average price
-            let totalPrice = 0;
-            let propertyCount = 0;
-            
-            snapshot.forEach(doc => {
-                const property = doc.data();
-                if (property.price && !isNaN(property.price)) {
-                    totalPrice += property.price;
-                    propertyCount++;
+    if (window.firebaseDb) {
+        firebaseDb.collection('properties').get()
+            .then(snapshot => {
+                const totalProperties = snapshot.size;
+                if (totalPropertiesElement) {
+                    totalPropertiesElement.textContent = totalProperties;
+                }
+                
+                // Calculate average price
+                let totalPrice = 0;
+                let propertyCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const property = doc.data();
+                    if (property.price && !isNaN(property.price)) {
+                        totalPrice += property.price;
+                        propertyCount++;
+                    }
+                });
+                
+                const avgPrice = propertyCount > 0 ? Math.round(totalPrice / propertyCount) : 0;
+                if (avgPriceElement) {
+                    avgPriceElement.textContent = `₹${avgPrice.toLocaleString()}`;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading properties count:", error);
+                if (totalPropertiesElement) {
+                    totalPropertiesElement.textContent = "Error";
+                }
+                if (avgPriceElement) {
+                    avgPriceElement.textContent = "₹0";
                 }
             });
-            
-            const avgPrice = propertyCount > 0 ? Math.round(totalPrice / propertyCount) : 0;
-            avgPriceElement.textContent = `₹${avgPrice.toLocaleString()}`;
-        })
-        .catch(error => {
-            console.error("Error loading properties count:", error);
+        
+        // Load total users count
+        firebaseDb.collection('users').get()
+            .then(snapshot => {
+                if (totalUsersElement) {
+                    totalUsersElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading users count:", error);
+                if (totalUsersElement) {
+                    totalUsersElement.textContent = "Error";
+                }
+            });
+        
+        // Load properties added this week
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        
+        firebaseDb.collection('properties')
+            .where('createdAt', '>=', oneWeekAgo)
+            .get()
+            .then(snapshot => {
+                if (propertiesThisWeekElement) {
+                    propertiesThisWeekElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading properties this week:", error);
+                if (propertiesThisWeekElement) {
+                    propertiesThisWeekElement.textContent = "Error";
+                }
+            });
+    } else {
+        console.error("Firebase DB not initialized");
+        if (totalPropertiesElement) {
             totalPropertiesElement.textContent = "Error";
-            avgPriceElement.textContent = "₹0";
-        });
-    
-    // Load total users count
-    firebaseDb.collection('users').get()
-        .then(snapshot => {
-            totalUsersElement.textContent = snapshot.size;
-        })
-        .catch(error => {
-            console.error("Error loading users count:", error);
+        }
+        if (totalUsersElement) {
             totalUsersElement.textContent = "Error";
-        });
-    
-    // Load properties added this week
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
-    firebaseDb.collection('properties')
-        .where('createdAt', '>=', oneWeekAgo)
-        .get()
-        .then(snapshot => {
-            propertiesThisWeekElement.textContent = snapshot.size;
-        })
-        .catch(error => {
-            console.error("Error loading properties this week:", error);
+        }
+        if (propertiesThisWeekElement) {
             propertiesThisWeekElement.textContent = "Error";
-        });
+        }
+        if (avgPriceElement) {
+            avgPriceElement.textContent = "₹0";
+        }
+    }
 }
 
 // Load charts
@@ -327,261 +419,294 @@ function loadCharts() {
 
 // Load location chart data
 function loadLocationChartData() {
-    firebaseDb.collection('properties').get()
-        .then(snapshot => {
-            const locationCounts = {};
-            
-            snapshot.forEach(doc => {
-                const property = doc.data();
-                const location = property.location || 'Unknown';
+    if (window.firebaseDb) {
+        firebaseDb.collection('properties').get()
+            .then(snapshot => {
+                const locationCounts = {};
                 
-                if (locationCounts[location]) {
-                    locationCounts[location]++;
-                } else {
-                    locationCounts[location] = 1;
-                }
-            });
-            
-            // Prepare data for chart
-            const labels = Object.keys(locationCounts);
-            const data = Object.values(locationCounts);
-            
-            // Limit to top 10 locations for better visualization
-            const sortedLocations = Object.entries(locationCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10);
-            
-            const topLabels = sortedLocations.map(item => item[0]);
-            const topData = sortedLocations.map(item => item[1]);
-            
-            // Create or update location chart
-            const ctx = document.getElementById('locationChart').getContext('2d');
-            
-            if (locationChart) {
-                locationChart.destroy();
-            }
-            
-            locationChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: topLabels,
-                    datasets: [{
-                        label: 'Number of Properties',
-                        data: topData,
-                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                        borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
+                snapshot.forEach(doc => {
+                    const property = doc.data();
+                    const location = property.location || 'Unknown';
+                    
+                    if (locationCounts[location]) {
+                        locationCounts[location]++;
+                    } else {
+                        locationCounts[location] = 1;
+                    }
+                });
+                
+                // Prepare data for chart
+                const labels = Object.keys(locationCounts);
+                const data = Object.values(locationCounts);
+                
+                // Limit to top 10 locations for better visualization
+                const sortedLocations = Object.entries(locationCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                
+                const topLabels = sortedLocations.map(item => item[0]);
+                const topData = sortedLocations.map(item => item[1]);
+                
+                // Create or update location chart
+                const ctx = document.getElementById('locationChart');
+                if (ctx) {
+                    const context = ctx.getContext('2d');
+                    if (locationChart) {
+                        locationChart.destroy();
+                    }
+                    
+                    locationChart = new Chart(context, {
+                        type: 'bar',
+                        data: {
+                            labels: topLabels,
+                            datasets: [{
+                                label: 'Number of Properties',
+                                data: topData,
+                                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
                             }
                         }
-                    }
+                    });
                 }
+            })
+            .catch(error => {
+                console.error("Error loading location chart data:", error);
             });
-        })
-        .catch(error => {
-            console.error("Error loading location chart data:", error);
-        });
+    } else {
+        console.error("Firebase DB not initialized");
+    }
 }
 
 // Load time chart data
 function loadTimeChartData() {
-    firebaseDb.collection('properties').get()
-        .then(snapshot => {
-            // Group properties by month
-            const monthlyCounts = {};
-            
-            snapshot.forEach(doc => {
-                const property = doc.data();
-                if (property.createdAt) {
-                    let date;
-                    if (property.createdAt.toDate) {
-                        date = property.createdAt.toDate();
-                    } else {
-                        date = new Date(property.createdAt);
-                    }
-                    
-                    // Format as "Month Year" (e.g., "Jan 2023")
-                    const monthYear = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-                    
-                    if (monthlyCounts[monthYear]) {
-                        monthlyCounts[monthYear]++;
-                    } else {
-                        monthlyCounts[monthYear] = 1;
-                    }
-                }
-            });
-            
-            // Sort by date
-            const sortedEntries = Object.entries(monthlyCounts)
-                .sort((a, b) => {
-                    const dateA = new Date(a[0]);
-                    const dateB = new Date(b[0]);
-                    return dateA - dateB;
-                });
-            
-            const labels = sortedEntries.map(entry => entry[0]);
-            const data = sortedEntries.map(entry => entry[1]);
-            
-            // Create or update time chart
-            const ctx = document.getElementById('timeChart').getContext('2d');
-            
-            if (timeChart) {
-                timeChart.destroy();
-            }
-            
-            timeChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Properties Added',
-                        data: data,
-                        borderColor: 'rgba(40, 167, 69, 1)',
-                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+    if (window.firebaseDb) {
+        firebaseDb.collection('properties').get()
+            .then(snapshot => {
+                // Group properties by month
+                const monthlyCounts = {};
+                
+                snapshot.forEach(doc => {
+                    const property = doc.data();
+                    if (property.createdAt) {
+                        let date;
+                        if (property.createdAt.toDate) {
+                            date = property.createdAt.toDate();
+                        } else {
+                            date = new Date(property.createdAt);
+                        }
+                        
+                        // Format as "Month Year" (e.g., "Jan 2023")
+                        const monthYear = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                        
+                        if (monthlyCounts[monthYear]) {
+                            monthlyCounts[monthYear]++;
+                        } else {
+                            monthlyCounts[monthYear] = 1;
                         }
                     }
+                });
+                
+                // Sort by date
+                const sortedEntries = Object.entries(monthlyCounts)
+                    .sort((a, b) => {
+                        const dateA = new Date(a[0]);
+                        const dateB = new Date(b[0]);
+                        return dateA - dateB;
+                    });
+                
+                const labels = sortedEntries.map(entry => entry[0]);
+                const data = sortedEntries.map(entry => entry[1]);
+                
+                // Create or update time chart
+                const ctx = document.getElementById('timeChart');
+                if (ctx) {
+                    const context = ctx.getContext('2d');
+                    if (timeChart) {
+                        timeChart.destroy();
+                    }
+                    
+                    timeChart = new Chart(context, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Properties Added',
+                                data: data,
+                                borderColor: 'rgba(40, 167, 69, 1)',
+                                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
+            })
+            .catch(error => {
+                console.error("Error loading time chart data:", error);
             });
-        })
-        .catch(error => {
-            console.error("Error loading time chart data:", error);
-        });
+    } else {
+        console.error("Firebase DB not initialized");
+    }
 }
 
 // Load recent properties
 function loadRecentProperties() {
     console.log("Loading recent properties");
     
-    firebaseDb.collection('properties')
-        .orderBy('createdAt', 'desc')
-        .limit(10)
-        .get()
-        .then(snapshot => {
-            if (snapshot.empty) {
-                recentPropertiesTable.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center">No properties found</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let tableHTML = '';
-            
-            // Get user emails for display
-            const userIds = new Set();
-            snapshot.forEach(doc => {
-                const property = doc.data();
-                if (property.userId) {
-                    userIds.add(property.userId);
+    if (window.firebaseDb) {
+        firebaseDb.collection('properties')
+            .orderBy('createdAt', 'desc')
+            .limit(10)
+            .get()
+            .then(snapshot => {
+                if (snapshot.empty) {
+                    if (recentPropertiesTable) {
+                        recentPropertiesTable.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center">No properties found</td>
+                            </tr>
+                        `;
+                    }
+                    return;
                 }
-            });
-            
-            // Get user data
-            const userPromises = Array.from(userIds).map(uid => 
-                firebaseDb.collection('users').doc(uid).get()
-            );
-            
-            Promise.all(userPromises)
-                .then(userDocs => {
-                    const userMap = {};
-                    userDocs.forEach(userDoc => {
-                        if (userDoc.exists) {
-                            const userData = userDoc.data();
-                            userMap[userData.uid] = {
-                                email: userData.email,
-                                createdAt: userData.createdAt
-                            };
+                
+                let tableHTML = '';
+                
+                // Get user emails for display
+                const userIds = new Set();
+                snapshot.forEach(doc => {
+                    const property = doc.data();
+                    if (property.userId) {
+                        userIds.add(property.userId);
+                    }
+                });
+                
+                // Get user data
+                const userPromises = Array.from(userIds).map(uid => 
+                    firebaseDb.collection('users').doc(uid).get()
+                );
+                
+                Promise.all(userPromises)
+                    .then(userDocs => {
+                        const userMap = {};
+                        userDocs.forEach(userDoc => {
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                userMap[userData.uid] = {
+                                    email: userData.email,
+                                    createdAt: userData.createdAt
+                                };
+                            }
+                        });
+                        
+                        // Generate table rows
+                        snapshot.forEach(doc => {
+                            const property = doc.data();
+                            const formattedDate = property.createdAt ? 
+                                new Date(property.createdAt.toDate ? property.createdAt.toDate() : property.createdAt).toLocaleDateString() : 
+                                'Unknown';
+                            
+                            const ownerInfo = property.userId && userMap[property.userId] ? 
+                                userMap[property.userId] : 
+                                { email: 'Unknown', createdAt: null };
+                            
+                            const memberSince = ownerInfo.createdAt ? 
+                                new Date(ownerInfo.createdAt.toDate ? ownerInfo.createdAt.toDate() : ownerInfo.createdAt).toLocaleDateString() : 
+                                'Unknown';
+                            
+                            tableHTML += `
+                                <tr>
+                                    <td>${property.title || 'Untitled'}</td>
+                                    <td>₹${(property.price || 0).toLocaleString()}</td>
+                                    <td>${property.location || 'Unknown'}</td>
+                                    <td>
+                                        <div><strong>${ownerInfo.email}</strong></div>
+                                        <div class="small text-muted">Member since: ${memberSince}</div>
+                                    </td>
+                                    <td>${formattedDate}</td>
+                                    <td>${property.contact || 'Not provided'}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        if (recentPropertiesTable) {
+                            recentPropertiesTable.innerHTML = tableHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error loading user data:", error);
+                        
+                        // Fallback without user emails
+                        snapshot.forEach(doc => {
+                            const property = doc.data();
+                            const formattedDate = property.createdAt ? 
+                                new Date(property.createdAt.toDate ? property.createdAt.toDate() : property.createdAt).toLocaleDateString() : 
+                                'Unknown';
+                            
+                            tableHTML += `
+                                <tr>
+                                    <td>${property.title || 'Untitled'}</td>
+                                    <td>₹${(property.price || 0).toLocaleString()}</td>
+                                    <td>${property.location || 'Unknown'}</td>
+                                    <td>
+                                        <div><strong>Unknown</strong></div>
+                                        <div class="small text-muted">Member since: Unknown</div>
+                                    </td>
+                                    <td>${formattedDate}</td>
+                                    <td>${property.contact || 'Not provided'}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        if (recentPropertiesTable) {
+                            recentPropertiesTable.innerHTML = tableHTML;
                         }
                     });
-                    
-                    // Generate table rows
-                    snapshot.forEach(doc => {
-                        const property = doc.data();
-                        const formattedDate = property.createdAt ? 
-                            new Date(property.createdAt.toDate ? property.createdAt.toDate() : property.createdAt).toLocaleDateString() : 
-                            'Unknown';
-                        
-                        const ownerInfo = property.userId && userMap[property.userId] ? 
-                            userMap[property.userId] : 
-                            { email: 'Unknown', createdAt: null };
-                        
-                        const memberSince = ownerInfo.createdAt ? 
-                            new Date(ownerInfo.createdAt.toDate ? ownerInfo.createdAt.toDate() : ownerInfo.createdAt).toLocaleDateString() : 
-                            'Unknown';
-                        
-                        tableHTML += `
-                            <tr>
-                                <td>${property.title || 'Untitled'}</td>
-                                <td>₹${(property.price || 0).toLocaleString()}</td>
-                                <td>${property.location || 'Unknown'}</td>
-                                <td>
-                                    <div><strong>${ownerInfo.email}</strong></div>
-                                    <div class="small text-muted">Member since: ${memberSince}</div>
-                                </td>
-                                <td>${formattedDate}</td>
-                            </tr>
-                        `;
-                    });
-                    
-                    recentPropertiesTable.innerHTML = tableHTML;
-                })
-                .catch(error => {
-                    console.error("Error loading user data:", error);
-                    
-                    // Fallback without user emails
-                    snapshot.forEach(doc => {
-                        const property = doc.data();
-                        const formattedDate = property.createdAt ? 
-                            new Date(property.createdAt.toDate ? property.createdAt.toDate() : property.createdAt).toLocaleDateString() : 
-                            'Unknown';
-                        
-                        tableHTML += `
-                            <tr>
-                                <td>${property.title || 'Untitled'}</td>
-                                <td>₹${(property.price || 0).toLocaleString()}</td>
-                                <td>${property.location || 'Unknown'}</td>
-                                <td>
-                                    <div><strong>Unknown</strong></div>
-                                    <div class="small text-muted">Member since: Unknown</div>
-                                </td>
-                                <td>${formattedDate}</td>
-                            </tr>
-                        `;
-                    });
-                    
-                    recentPropertiesTable.innerHTML = tableHTML;
-                });
-        })
-        .catch(error => {
-            console.error("Error loading recent properties:", error);
+            })
+            .catch(error => {
+                console.error("Error loading recent properties:", error);
+                if (recentPropertiesTable) {
+                    recentPropertiesTable.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">Error loading properties</td>
+                        </tr>
+                    `;
+                }
+            });
+    } else {
+        console.error("Firebase DB not initialized");
+        if (recentPropertiesTable) {
             recentPropertiesTable.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center">Error loading properties</td>
+                    <td colspan="7" class="text-center">Database not initialized</td>
                 </tr>
             `;
-        });
+        }
+    }
 }
 
 // Show error message

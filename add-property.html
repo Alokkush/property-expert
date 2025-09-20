@@ -36,11 +36,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="manage-properties.html">Manage Properties</a>
                     </li>
+                    <li class="nav-item" id="admin-dashboard-nav" style="display: none;">
+                        <a class="nav-link" href="admin-dashboard.html">Admin Dashboard</a>
+                    </li>
                 </ul>
                 <div class="d-flex">
                     <div id="auth-buttons">
                         <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+                        <button class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+                        <a href="admin-login.html" class="btn btn-info">Admin</a>
                     </div>
                     <div id="user-info" class="d-none">
                         <span class="text-white me-3" id="user-email"></span>
@@ -80,6 +84,12 @@
                                 <div class="mb-3">
                                     <label for="property-description" class="form-label">Description</label>
                                     <textarea class="form-control" id="property-description" rows="4" placeholder="Enter property description" required data-aos="fade-up" data-aos-delay="400"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="property-contact" class="form-label">Contact Information</label>
+                                    <input type="text" class="form-control" id="property-contact" placeholder="Enter contact phone number or email" required data-aos="fade-up" data-aos-delay="500">
+                                    <div class="form-text">Phone number or email for interested buyers to contact you</div>
                                 </div>
                                 
                                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">

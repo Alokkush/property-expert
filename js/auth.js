@@ -9,104 +9,90 @@ const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const loginError = document.getElementById('login-error');
 const signupError = document.getElementById('signup-error');
-const adminBtn = document.getElementById('admin-btn');
+const adminDashboardNav = document.getElementById('admin-dashboard-nav');
 
-// Check authentication state
-firebaseAuth.onAuthStateChanged(user => {
-    if (user) {
-        // User is signed in
-        showUserUI(user);
-        // Check if user is admin
-        checkAdminStatus(user);
-    } else {
-        // User is signed out
-        showAuthUI();
-        // Keep admin button visible for non-authenticated visitors
-        // It will only be hidden for non-admin users after they log in
-    }
+// List of admin emails
+const ADMIN_EMAILS = [
+    "admin@propertyexpert.com",
+    "alokkushwaha78600@gmail.com",
+    "admin@gmail.com"
+];
+
+// Check authentication state after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, checking authentication state');
+    
+    // Small delay to ensure DOM elements are fully loaded
+    setTimeout(() => {
+        // Check if firebaseAuth is available
+        if (window.firebaseAuth) {
+            firebaseAuth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log('User is authenticated:', user.email);
+                    // User is signed in
+                    showUserUI(user);
+                    // Check if user is admin
+                    checkAdminStatus(user);
+                } else {
+                    console.log('User is not authenticated');
+                    // User is signed out
+                    showAuthUI();
+                    // Hide admin dashboard link for non-authenticated users
+                    if (adminDashboardNav) {
+                        adminDashboardNav.style.display = 'none';
+                    }
+                }
+            });
+        } else {
+            console.error('Firebase Auth not initialized');
+            // Show auth UI if Firebase is not initialized
+            showAuthUI();
+            // Hide admin dashboard link if Firebase is not initialized
+            if (adminDashboardNav) {
+                adminDashboardNav.style.display = 'none';
+            }
+        }
+    }, 100);
 });
 
 // Show authenticated user UI
 function showUserUI(user) {
-    authButtons.classList.add('d-none');
-    userInfo.classList.remove('d-none');
-    userEmail.textContent = user.email;
+    console.log('Showing user UI for:', user.email);
+    if (authButtons) authButtons.classList.add('d-none');
+    if (userInfo) userInfo.classList.remove('d-none');
+    if (userEmail) userEmail.textContent = user.email;
     // Check if user is admin when showing user UI
-    checkAdminStatus(user);
+    // Small delay to ensure DOM elements are fully loaded
+    setTimeout(() => {
+        checkAdminStatus(user);
+    }, 50);
 }
 
 // Show authentication buttons UI
 function showAuthUI() {
-    authButtons.classList.remove('d-none');
-    userInfo.classList.add('d-none');
+    console.log('Showing auth UI');
+    if (authButtons) authButtons.classList.remove('d-none');
+    if (userInfo) userInfo.classList.add('d-none');
 }
 
 // Check if user is admin
 function checkAdminStatus(user) {
-    // List of admin emails
-    const adminEmails = [
-        "admin@propertyexpert.com",
-        "alokkushwaha78600@gmail.com",
-        "admin@gmail.com"
-    ];
+    console.log('Checking admin status for user:', user.email);
     
     // Check if user's email is in the admin list
-    if (adminEmails.includes(user.email)) {
-        if (adminBtn) {
-            adminBtn.style.display = 'inline-block';
+    if (ADMIN_EMAILS.includes(user.email)) {
+        console.log('User is admin, showing admin dashboard link');
+        // Show admin dashboard link for admin users
+        if (adminDashboardNav) {
+            adminDashboardNav.style.display = 'block';
         }
     } else {
-        // Check if user is admin in the database
-        checkDatabaseForAdminStatus(user);
+        console.log('User is not admin, hiding admin dashboard link');
+        // Hide admin dashboard link for non-admin users
+        if (adminDashboardNav) {
+            adminDashboardNav.style.display = 'none';
+        }
     }
-}
-
-// Check database for admin status
-function checkDatabaseForAdminStatus(user) {
-    // Check if users collection exists and user has admin flag
-    firebaseDb.collection('users').doc(user.uid).get()
-        .then(doc => {
-            if (doc.exists) {
-                const userData = doc.data();
-                if (userData.isAdmin && adminBtn) {
-                    adminBtn.style.display = 'inline-block';
-                } else if (adminBtn) {
-                    // Only hide the admin button if it exists and user is not admin
-                    adminBtn.style.display = 'none';
-                }
-            } else {
-                // Create user document if it doesn't exist
-                createUserDocument(user);
-            }
-        })
-        .catch(error => {
-            console.error("Error checking admin status:", error);
-            if (adminBtn) {
-                // Hide admin button on error
-                adminBtn.style.display = 'none';
-            }
-        });
-}
-
-// Create user document
-function createUserDocument(user) {
-    const userData = {
-        uid: user.uid,
-        email: user.email,
-        isAdmin: false, // Default to false, admin will be set manually
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    firebaseDb.collection('users').doc(user.uid).set(userData)
-        .then(() => {
-            console.log("User document created");
-            if (adminBtn) {
-                adminBtn.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error("Error creating user document:", error);
-        });
 }
 
 // Login form submission
@@ -117,25 +103,32 @@ if (loginForm) {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                // Clear any previous errors
-                loginError.classList.add('d-none');
-                
-                // Close modal
-                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                loginModal.hide();
-                
-                // Reset form
-                loginForm.reset();
-                
-                // Show success message
-                console.log('User logged in successfully');
-            })
-            .catch(error => {
-                loginError.textContent = error.message;
-                loginError.classList.remove('d-none');
-            });
+        if (window.firebaseAuth) {
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    // Clear any previous errors
+                    loginError.classList.add('d-none');
+                    
+                    // Close modal
+                    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    if (loginModal) {
+                        loginModal.hide();
+                    }
+                    
+                    // Reset form
+                    loginForm.reset();
+                    
+                    // Show success message
+                    console.log('User logged in successfully');
+                })
+                .catch(error => {
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('d-none');
+                });
+        } else {
+            loginError.textContent = 'Authentication system not initialized. Please refresh the page.';
+            loginError.classList.remove('d-none');
+        }
     });
 }
 
@@ -147,62 +140,91 @@ if (signupForm) {
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
+        const signupError = document.getElementById('signup-error');
         
         // Check if passwords match
         if (password !== confirmPassword) {
-            signupError.textContent = 'Passwords do not match';
-            signupError.classList.remove('d-none');
+            if (signupError) {
+                signupError.textContent = 'Passwords do not match';
+                signupError.classList.remove('d-none');
+            }
             return;
         }
         
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                // Clear any previous errors
-                signupError.classList.add('d-none');
-                
-                // Close modal
-                const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-                signupModal.hide();
-                
-                // Reset form
-                signupForm.reset();
-                
-                // Show success message
-                console.log('User signed up successfully');
-            })
-            .catch(error => {
-                signupError.textContent = error.message;
+        if (window.firebaseAuth) {
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    // Clear any previous errors
+                    if (signupError) {
+                        signupError.classList.add('d-none');
+                    }
+                    
+                    // Close modal
+                    const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                    if (signupModal) {
+                        signupModal.hide();
+                    }
+                    
+                    // Reset form
+                    signupForm.reset();
+                    
+                    // Show success message
+                    console.log('User signed up successfully');
+                })
+                .catch(error => {
+                    if (signupError) {
+                        signupError.textContent = error.message;
+                        signupError.classList.remove('d-none');
+                    }
+                });
+        } else {
+            if (signupError) {
+                signupError.textContent = 'Authentication system not initialized. Please refresh the page.';
                 signupError.classList.remove('d-none');
-            });
+            }
+        }
     });
 }
 
 // Logout functionality
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-        firebaseAuth.signOut()
-            .then(() => {
-                console.log('User logged out successfully');
-                // Hide admin button on logout
-                if (adminBtn) {
-                    adminBtn.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error logging out:', error);
-            });
+        if (window.firebaseAuth) {
+            firebaseAuth.signOut()
+                .then(() => {
+                    console.log('User logged out successfully');
+                    // Hide admin dashboard link on logout
+                    if (adminDashboardNav) {
+                        adminDashboardNav.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+        } else {
+            console.error('Firebase Auth not initialized');
+        }
     });
 }
 
 // Check if user is authenticated (for protected pages)
 function checkAuth() {
     return new Promise((resolve, reject) => {
-        firebaseAuth.onAuthStateChanged(user => {
-            if (user) {
-                resolve(user);
-            } else {
-                reject(new Error('User not authenticated'));
-            }
-        });
+        if (window.firebaseAuth) {
+            firebaseAuth.onAuthStateChanged(user => {
+                if (user) {
+                    resolve(user);
+                } else {
+                    reject(new Error('User not authenticated'));
+                }
+            });
+        } else {
+            reject(new Error('Firebase Auth not initialized'));
+        }
     });
 }
+
+// Export admin check function for use in other files
+window.isAdminUser = function(user) {
+    return ADMIN_EMAILS.includes(user.email);
+};

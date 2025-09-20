@@ -201,6 +201,14 @@ function createUserPropertyCard(id, property) {
     // Use default demo image if no image URL is provided
     const imageUrl = property.imageUrl || DEFAULT_DEMO_IMAGE;
     
+    // Add contact information if available
+    let contactHTML = '';
+    if (property.contact) {
+        contactHTML = `
+            <p class="property-contact mb-2"><i class="fas fa-phone me-1"></i> <strong>Contact:</strong> ${property.contact}</p>
+        `;
+    }
+    
     return `
         <div class="col-md-6 col-lg-4 mb-4 card-animation">
             <div class="card property-card h-100">
@@ -209,6 +217,7 @@ function createUserPropertyCard(id, property) {
                     <h5 class="card-title">${property.title}</h5>
                     <p class="property-price mb-1">₹${property.price ? property.price.toLocaleString() : '0'}</p>
                     <p class="property-location mb-2"><i class="fas fa-map-marker-alt me-1"></i> ${property.location}</p>
+                    ${contactHTML}
                     <p class="property-description flex-grow-1">${property.description}</p>
                     <div class="mt-auto">
                         <small class="text-muted">Posted on ${formattedDate}</small>
@@ -237,6 +246,7 @@ function openEditModal(id, property) {
     document.getElementById('edit-property-price').value = property.price;
     document.getElementById('edit-property-location').value = property.location;
     document.getElementById('edit-property-description').value = property.description;
+    document.getElementById('edit-property-contact').value = property.contact || '';
     document.getElementById('edit-property-image').value = property.imageUrl || '';
     
     // Update image preview
@@ -263,6 +273,7 @@ function updateProperty(e) {
     const price = parseFloat(document.getElementById('edit-property-price').value);
     const location = document.getElementById('edit-property-location').value;
     const description = document.getElementById('edit-property-description').value;
+    const contact = document.getElementById('edit-property-contact').value;
     const imageUrl = document.getElementById('edit-property-image').value || DEFAULT_DEMO_IMAGE;
     
     // Create search terms array
@@ -279,6 +290,7 @@ function updateProperty(e) {
         price,
         location,
         description,
+        contact,
         imageUrl,
         searchTerms
     };

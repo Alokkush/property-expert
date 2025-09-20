@@ -22,6 +22,7 @@ if (propertyForm) {
         const price = parseFloat(document.getElementById('property-price').value);
         const location = document.getElementById('property-location').value;
         const description = document.getElementById('property-description').value;
+        const contact = document.getElementById('property-contact').value;
         
         // Use default demo image
         const imageUrl = DEFAULT_DEMO_IMAGE;
@@ -40,6 +41,7 @@ if (propertyForm) {
             price,
             location,
             description,
+            contact,
             imageUrl,
             searchTerms,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()

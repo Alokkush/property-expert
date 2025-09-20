@@ -30,7 +30,7 @@ const demoProperties = [
         price: 2500000,
         location: "Miami, FL",
         description: "Stunning luxury villa directly on the beach with panoramic ocean views. Features infinity pool, private beach access, smart home technology, and designer finishes throughout.",
-        imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+        imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c0eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
     },
     {
         title: "Cozy Mountain Cabin",
@@ -292,6 +292,14 @@ function createPropertyCard(id, property) {
     // Use default demo image if no image URL is provided
     const imageUrl = property.imageUrl || DEFAULT_DEMO_IMAGE;
     
+    // Add contact information if available
+    let contactHTML = '';
+    if (property.contact) {
+        contactHTML = `
+            <p class="property-contact mb-2"><i class="fas fa-phone me-1"></i> <strong>Contact:</strong> ${property.contact}</p>
+        `;
+    }
+    
     return `
         <div class="col-md-6 col-lg-4 mb-4 card-animation">
             <div class="card property-card h-100">
@@ -300,6 +308,7 @@ function createPropertyCard(id, property) {
                     <h5 class="card-title">${property.title}</h5>
                     <p class="property-price mb-1">₹${property.price ? property.price.toLocaleString() : '0'}</p>
                     <p class="property-location mb-2"><i class="fas fa-map-marker-alt me-1"></i> ${property.location}</p>
+                    ${contactHTML}
                     <p class="property-description flex-grow-1">${property.description}</p>
                     <div class="mt-auto">
                         <small class="text-muted">Posted on ${formattedDate}</small>

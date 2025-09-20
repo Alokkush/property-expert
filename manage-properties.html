@@ -36,11 +36,15 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="manage-properties.html">Manage Properties</a>
                     </li>
+                    <li class="nav-item" id="admin-dashboard-nav" style="display: none;">
+                        <a class="nav-link" href="admin-dashboard.html">Admin Dashboard</a>
+                    </li>
                 </ul>
                 <div class="d-flex">
                     <div id="auth-buttons">
                         <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+                        <button class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+                        <a href="admin-login.html" class="btn btn-info">Admin</a>
                     </div>
                     <div id="user-info" class="d-none">
                         <span class="text-white me-3" id="user-email"></span>
@@ -116,6 +120,12 @@
                             <label for="edit-property-image" class="form-label">Image URL</label>
                             <input type="url" class="form-control" id="edit-property-image" required>
                             <div class="form-text">Use a public image URL from Unsplash, Picsum, or similar service</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="edit-property-contact" class="form-label">Contact Information</label>
+                            <input type="text" class="form-control" id="edit-property-contact" placeholder="Enter contact phone number or email" required>
+                            <div class="form-text">Phone number or email for interested buyers to contact you</div>
                         </div>
                         
                         <div class="mb-3">

@@ -21,6 +21,10 @@ firebaseAuth.onAuthStateChanged(user => {
     } else {
         // User is signed out
         showAuthUI();
+        // Hide admin button for non-authenticated users
+        if (adminBtn) {
+            adminBtn.style.display = 'none';
+        }
     }
 });
 
@@ -37,9 +41,6 @@ function showUserUI(user) {
 function showAuthUI() {
     authButtons.classList.remove('d-none');
     userInfo.classList.add('d-none');
-    if (adminBtn) {
-        adminBtn.style.display = 'none';
-    }
 }
 
 // Check if user is admin

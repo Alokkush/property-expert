@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Expert - Cloud-Based Real Estate Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm" data-aos="fade-down">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-home me-2"></i>Property Expert
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="add-property.html">Add Property</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="manage-properties.html">Manage Properties</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div id="auth-buttons">
+                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+                    </div>
+                    <div id="user-info" class="d-none">
+                        <span class="text-white me-3" id="user-email"></span>
+                        <button class="btn btn-outline-light" id="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section position-relative overflow-hidden">
+        <div class="hero-overlay"></div>
+        <div class="container position-relative py-5" style="z-index: 2;">
+            <div class="row align-items-center">
+                <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0" data-aos="fade-right">
+                    <h1 class="display-3 fw-bold mb-3 hero-title">Find Your Dream Property</h1>
+                    <p class="lead mb-4 hero-subtitle">Discover the perfect home, office, or investment property with our cloud-based real estate platform. Manage listings, connect with buyers, and close deals faster.</p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                        <a href="add-property.html" class="btn btn-success btn-lg px-4 py-3 hero-btn">
+                            <i class="fas fa-plus me-2"></i>Add Property
+                        </a>
+                        <a href="#properties" class="btn btn-warning btn-lg px-4 py-3 hero-btn">
+                            <i class="fas fa-search me-2"></i>View Properties
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5" data-aos="fade-left">
+                    <div class="hero-card p-4 rounded-4 shadow-lg">
+                        <div class="d-flex mb-3">
+                            <div class="stat-card bg-white bg-opacity-10 p-3 rounded-3 me-3 flex-fill">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-home fa-2x me-2"></i>
+                                    <div>
+                                        <div class="stat-number">1,250+</div>
+                                        <div class="stat-label">Properties</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card bg-white bg-opacity-10 p-3 rounded-3 flex-fill">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-users fa-2x me-2"></i>
+                                    <div>
+                                        <div class="stat-number">850+</div>
+                                        <div class="stat-label">Agents</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white bg-opacity-10 p-3 rounded-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-handshake fa-2x me-2"></i>
+                                <div>
+                                    <div class="stat-number">3,400+</div>
+                                    <div class="stat-label">Successful Deals</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card bg-white bg-opacity-10 p-3 rounded-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rating">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <span class="ms-2">4.9/5</span>
+                            </div>
+                            <p class="mb-0">"This platform helped me sell my property in just 2 weeks!"</p>
+                            <div class="d-flex align-items-center mt-2">
+                                <div class="avatar bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                    <span class="small">JD</span>
+                                </div>
+                                <small>John Doe, Property Owner</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator" data-aos="fade-up" data-aos-delay="500">
+            <a href="#welcome" class="text-white">
+                <i class="fas fa-chevron-down fa-2x"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Welcome Section -->
+    <section id="welcome" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4" data-aos="fade-up">Welcome to Property Expert</h2>
+                    <p class="lead" data-aos="fade-up" data-aos-delay="100">
+                        Your complete solution for managing real estate properties in the cloud. 
+                        This modern, responsive application allows you to showcase properties with beautiful layouts, 
+                        manage listings, and provide an exceptional user experience.
+                    </p>
+                    <div class="mt-4" data-aos="fade-up" data-aos-delay="200">
+                        <a href="#properties" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-eye me-2"></i>Browse Properties
+                        </a>
+                        <a href="PROJECT_OVERVIEW.md" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-book me-2"></i>Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Get Started Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h2 class="mb-4" data-aos="fade-up">How to Get Started</h2>
+                    <p class="lead" data-aos="fade-up" data-aos-delay="100">Follow these simple steps to begin using Property Expert</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center step-card" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="card-body">
+                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                1
+                            </div>
+                            <h5 class="card-title">Explore the Demo</h5>
+                            <p class="card-text">Browse the property listings on this page to see the interface in action.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center step-card" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="card-body">
+                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                2
+                            </div>
+                            <h5 class="card-title">Create an Account</h5>
+                            <p class="card-text">Sign up for a free account using the "Sign Up" button in the navigation bar.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center step-card" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="card-body">
+                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                3
+                            </div>
+                            <h5 class="card-title">Add Your Properties</h5>
+                            <p class="card-text">Click "Add Property" to list your real estate properties with details and images.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center step-card" data-aos="zoom-in" data-aos-delay="400">
+                        <div class="card-body">
+                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                4
+                            </div>
+                            <h5 class="card-title">Manage Listings</h5>
+                            <p class="card-text">Use the "Manage Properties" page to edit or remove your property listings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Property Categories Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h2 class="mb-4" data-aos="fade-up">Explore Property Categories</h2>
+                    <p class="lead" data-aos="fade-up" data-aos-delay="100">Discover our diverse range of property types tailored to your needs</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center category-card" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="card-body">
+                            <div class="category-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <i class="fas fa-home fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Residential</h5>
+                            <p class="card-text">Homes, apartments, and family residences</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm mt-2">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center category-card" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="card-body">
+                            <div class="category-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <i class="fas fa-building fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Commercial</h5>
+                            <p class="card-text">Offices, retail spaces, and business properties</p>
+                            <a href="#" class="btn btn-outline-success btn-sm mt-2">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center category-card" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="card-body">
+                            <div class="category-icon bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <i class="fas fa-warehouse fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Industrial</h5>
+                            <p class="card-text">Warehouses, factories, and industrial units</p>
+                            <a href="#" class="btn btn-outline-warning btn-sm mt-2">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center category-card" data-aos="zoom-in" data-aos-delay="400">
+                        <div class="card-body">
+                            <div class="category-icon bg-info text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <i class="fas fa-tree fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Land</h5>
+                            <p class="card-text">Vacant plots, agricultural land, and development sites</p>
+                            <a href="#" class="btn btn-outline-info btn-sm mt-2">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h2 class="mb-4" data-aos="fade-up">Key Features</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center" data-aos="flip-left" data-aos-delay="100">
+                        <div class="card-body">
+                            <div class="feature-icon text-primary mb-3">
+                                <i class="fas fa-home fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Property Management</h5>
+                            <p class="card-text">Add, view, edit, and delete property listings with ease.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center" data-aos="flip-left" data-aos-delay="200">
+                        <div class="card-body">
+                            <div class="feature-icon text-primary mb-3">
+                                <i class="fas fa-mobile-alt fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Responsive Design</h5>
+                            <p class="card-text">Beautiful interface that works on all device sizes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center" data-aos="flip-left" data-aos-delay="300">
+                        <div class="card-body">
+                            <div class="feature-icon text-primary mb-3">
+                                <i class="fas fa-cloud fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Cloud-Based</h5>
+                            <p class="card-text">Powered by Firebase for reliable data storage and authentication.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Properties Section -->
+    <section id="properties" class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2 class="mb-0" data-aos="fade-right">Featured Properties</h2>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="input-group" data-aos="fade-left">
+                        <input type="text" class="form-control" id="search-input" placeholder="Search properties...">
+                        <button class="btn btn-outline-secondary" type="button" id="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" id="properties-container">
+                <!-- Properties will be loaded here dynamically -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading properties...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 data-aos="fade-up"><i class="fas fa-home me-2"></i>Property Expert</h5>
+                    <p data-aos="fade-up" data-aos-delay="100">Your trusted cloud-based real estate management system for showcasing and managing property listings with ease. Built with modern web technologies for a seamless experience.</p>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-3" data-aos="fade-up" data-aos-delay="200"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3" data-aos="fade-up" data-aos-delay="300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3" data-aos="fade-up" data-aos-delay="400"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white me-3" data-aos="fade-up" data-aos-delay="500"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white" data-aos="fade-up" data-aos-delay="600"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4" data-aos="fade-up">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html" class="text-white text-decoration-none" data-aos="fade-right" data-aos-delay="100">Home</a></li>
+                        <li class="mb-2"><a href="add-property.html" class="text-white text-decoration-none" data-aos="fade-right" data-aos-delay="200">Add Property</a></li>
+                        <li class="mb-2"><a href="manage-properties.html" class="text-white text-decoration-none" data-aos="fade-right" data-aos-delay="300">Manage Properties</a></li>
+                        <li class="mb-2"><a href="#" class="text-white text-decoration-none" data-aos="fade-right" data-aos-delay="400">Documentation</a></li>
+                        <li class="mb-2"><a href="#" class="text-white text-decoration-none" data-aos="fade-right" data-aos-delay="500">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4" data-aos="fade-up">Features</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="100"><i class="fas fa-check-circle me-2 text-success"></i> Property Listings</li>
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="200"><i class="fas fa-check-circle me-2 text-success"></i> User Authentication</li>
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="300"><i class="fas fa-check-circle me-2 text-success"></i> Search Functionality</li>
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="400"><i class="fas fa-check-circle me-2 text-success"></i> Responsive Design</li>
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="500"><i class="fas fa-check-circle me-2 text-success"></i> Cloud Storage</li>
+                        <li class="mb-2" data-aos="fade-right" data-aos-delay="600"><i class="fas fa-check-circle me-2 text-success"></i> Real-time Updates</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-4" data-aos="fade-up">Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" data-aos="fade-left" data-aos-delay="100"><i class="fas fa-envelope me-2"></i> info@propertyexpert.com</li>
+                        <li class="mb-2" data-aos="fade-left" data-aos-delay="200"><i class="fas fa-phone me-2"></i> +91 9876543210</li>
+                        <li class="mb-2" data-aos="fade-left" data-aos-delay="300"><i class="fas fa-map-marker-alt me-2"></i> Mumbai, Maharashtra, India</li>
+                        <li class="mb-2" data-aos="fade-left" data-aos-delay="400"><i class="fas fa-clock me-2"></i> Mon-Fri: 9AM - 6PM</li>
+                    </ul>
+                    <div class="mt-3">
+                        <h6 data-aos="fade-up">Subscribe to Newsletter</h6>
+                        <div class="input-group" data-aos="fade-up" data-aos-delay="100">
+                            <input type="email" class="form-control form-control-sm" placeholder="Your Email">
+                            <button class="btn btn-primary btn-sm">Go</button>
+                        </div>
+                        <small class="text-muted" data-aos="fade-up" data-aos-delay="200">Get the latest updates and property listings</small>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0" data-aos="fade-right">&copy; 2025 Property Expert. All rights reserved.</p>
+                    <p class="mb-0"><small class="text-muted" data-aos="fade-right" data-aos-delay="100">Version 1.0.0</small></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white text-decoration-none me-3" data-aos="fade-left" data-aos-delay="100">Privacy Policy</a>
+                    <a href="#" class="text-white text-decoration-none me-3" data-aos="fade-left" data-aos-delay="200">Terms of Service</a>
+                    <a href="#" class="text-white text-decoration-none me-3" data-aos="fade-left" data-aos-delay="300">Support</a>
+                    <a href="#" class="text-white text-decoration-none" data-aos="fade-left" data-aos-delay="400">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title w-100 text-center" id="loginModalLabel">
+                        <i class="fas fa-sign-in-alt text-primary me-2"></i>Welcome Back
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <p class="text-center text-muted mb-4">Sign in to your Property Expert account</p>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-envelope text-muted"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0" id="login-email" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="login-password" placeholder="Enter your password" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember-me">
+                            <label class="form-check-label" for="remember-me">Remember me</label>
+                            <a href="#" class="float-end text-decoration-none">Forgot password?</a>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </button>
+                        </div>
+                    </form>
+                    <div class="alert alert-danger mt-3 d-none" id="login-error"></div>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#signupModal">Sign up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title w-100 text-center" id="signupModalLabel">
+                        <i class="fas fa-user-plus text-primary me-2"></i>Create Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <p class="text-center text-muted mb-4">Join Property Expert today</p>
+                    <form id="signup-form">
+                        <div class="mb-3">
+                            <label for="signup-email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-envelope text-muted"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0" id="signup-email" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signup-password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="signup-password" placeholder="Create a password" required minlength="6">
+                            </div>
+                            <div class="form-text">Password must be at least 6 characters long</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signup-confirm-password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="signup-confirm-password" placeholder="Confirm your password" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms-agreement" required>
+                            <label class="form-check-label" for="terms-agreement">I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a></label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                <i class="fas fa-user-plus me-2"></i>Sign Up
+                            </button>
+                        </div>
+                    </form>
+                    <div class="alert alert-danger mt-3 d-none" id="signup-error"></div>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Already have an account? <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Custom JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html>

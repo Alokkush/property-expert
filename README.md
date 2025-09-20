@@ -12,6 +12,7 @@ A modern, responsive real estate management system built with HTML, CSS, JavaScr
 - **Responsive Design**: Mobile-first design that works on all device sizes
 - **Modern UI/UX**: Beautiful interface with smooth animations and transitions
 - **Demo Data**: Sample properties automatically inserted when the database is empty
+- **Admin Dashboard**: Analytics and statistics for administrators
 
 ### 🔑 Backend (Firebase)
 - **Authentication**: Email/Password authentication with secure user sessions
@@ -19,6 +20,7 @@ A modern, responsive real estate management system built with HTML, CSS, JavaScr
 - **Real-time Updates**: Instant synchronization of property data across all clients
 - **CRUD Operations**: Full Create, Read, Update, Delete functionality for properties
 - **Data Security**: Users can only manage their own properties with Firestore security rules
+- **Admin Access Control**: Special privileges for administrator users
 
 ### 🖼 Media Handling
 - **Flexible Image Support**: Works with public image URLs from services like Unsplash or Picsum
@@ -33,6 +35,7 @@ property-expert/
 ├── index.html              # Home page with property listings
 ├── add-property.html       # Property creation form
 ├── manage-properties.html  # Property management dashboard
+├── admin-dashboard.html    # Admin analytics dashboard
 ├── README.md               # Project documentation
 │
 ├── css/
@@ -44,6 +47,7 @@ property-expert/
 │   ├── main.js             # Home page functionality and property loading
 │   ├── add-property.js     # Property creation logic
 │   ├── manage-properties.js # Property management functionality
+│   ├── admin-dashboard.js  # Admin dashboard analytics
 │   └── loading.js          # Loading utilities and UI helpers
 │
 └── images/                 # (Created after deployment)
@@ -60,6 +64,7 @@ property-expert/
 1. Clone or download this repository
 2. Open `index.html` in your web browser to view the application
 3. Sign up for an account to start adding properties
+4. For admin access, sign up with the email "admin@propertyexpert.com" or "alokkushwaha78600@gmail.com"
 
 ### Firebase Setup
 To deploy this application with full functionality, follow these steps:
@@ -99,6 +104,19 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && 
                              request.auth.uid == resource.data.userId;
     }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow read access to authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow create access to authenticated users
+      allow create: if request.auth != null;
+      
+      // Allow update only to the user themselves
+      allow update: if request.auth != null && 
+                     request.auth.uid == userId;
+    }
   }
 }
 ```
@@ -122,6 +140,7 @@ service cloud.firestore {
 - Authentication modals for login/signup
 - Form validation and error handling
 - Success/error notifications
+- Admin dashboard with analytics charts
 
 ## 🧪 Demo Data
 
@@ -148,6 +167,21 @@ You can use these sample image URLs when adding properties:
 
 Alternatively, you can type "none" or "no" in the image URL field to display a "No Image Available" placeholder.
 
+## 👤 Admin Dashboard
+
+The admin dashboard provides analytics and statistics for system administrators:
+
+### Features
+- **Property Statistics**: Total properties, users, and properties added this week
+- **Average Property Price**: System-wide average property price calculation
+- **Location Analytics**: Bar chart showing property distribution by location
+- **Time-based Analytics**: Line chart showing property additions over time
+- **Recent Properties Table**: List of recently added properties with owner information
+
+### Access
+- Admin access is granted to users with specific emails ("admin@propertyexpert.com" or "alokkushwaha78600@gmail.com")
+- In a production environment, admin status would be managed through a proper role system in the database
+
 ## 🔧 Technical Implementation
 
 ### Core Technologies
@@ -156,6 +190,7 @@ Alternatively, you can type "none" or "no" in the image URL field to display a "
 - **Bootstrap 5**: Responsive framework for consistent UI components
 - **JavaScript (ES6)**: Modern JavaScript for interactive functionality
 - **Firebase**: Backend-as-a-Service for authentication and database
+- **Chart.js**: Data visualization library for analytics charts
 
 ### JavaScript Architecture
 - Modular approach with separate files for different functionalities
@@ -168,6 +203,7 @@ Alternatively, you can type "none" or "no" in the image URL field to display a "
 - Secure user authentication
 - Server-side timestamp generation
 - Batch operations for efficient data handling
+- Admin access control
 
 ## 🛠 Development Workflow
 
@@ -198,6 +234,11 @@ Common issues and solutions:
 2. Check that Email/Password sign-in method is enabled
 3. Ensure your API keys are correct
 
+### Admin Dashboard Issues
+1. Ensure you're logged in with an admin email
+2. Check browser console for JavaScript errors
+3. Verify Chart.js library is loaded correctly
+
 ### Styling Issues
 1. Confirm all CSS files are properly linked
 2. Check browser compatibility
@@ -226,6 +267,7 @@ The application is fully responsive and optimized for:
 - Secure API key handling
 - Firestore security rules to prevent unauthorized access
 - HTTPS support for secure data transmission
+- Admin access control to prevent unauthorized access to analytics
 
 ## 📈 Performance Optimization
 
@@ -234,6 +276,7 @@ The application is fully responsive and optimized for:
 - Minimized reflows and repaints
 - Optimized CSS animations
 - Asynchronous JavaScript loading
+- Chart rendering optimizations
 
 ## 🎯 Use Cases
 
@@ -242,6 +285,7 @@ The application is fully responsive and optimized for:
 - Rental platforms for landlords and tenants
 - Real estate marketplaces
 - Property portfolio management
+- Real estate analytics for administrators
 
 ## 🤝 Contributing
 
@@ -268,3 +312,4 @@ For support, please refer to the documentation or contact the developer.
 - [Font Awesome](https://fontawesome.com/) - Icon library
 - [Unsplash](https://unsplash.com/) - Demo images
 - [AOS](https://michalsnik.github.io/aos/) - Animation library
+- [Chart.js](https://www.chartjs.org/) - Data visualization library

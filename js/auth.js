@@ -9,12 +9,15 @@ const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const loginError = document.getElementById('login-error');
 const signupError = document.getElementById('signup-error');
+const adminBtn = document.getElementById('admin-btn');
 
 // Check authentication state
 firebaseAuth.onAuthStateChanged(user => {
     if (user) {
         // User is signed in
         showUserUI(user);
+        // Check if user is admin
+        checkAdminStatus(user);
     } else {
         // User is signed out
         showAuthUI();
@@ -32,6 +35,72 @@ function showUserUI(user) {
 function showAuthUI() {
     authButtons.classList.remove('d-none');
     userInfo.classList.add('d-none');
+    if (adminBtn) {
+        adminBtn.style.display = 'none';
+    }
+}
+
+// Check if user is admin
+function checkAdminStatus(user) {
+    // In a real application, you would check against a database of admin users
+    // For this demo, we'll check if the user's email matches the admin email
+    // You could also check if the user's UID matches a known admin UID
+    
+    // Simple check for demo - in production, use a proper admin role system
+    if (user.email === "admin@propertyexpert.com" || user.email === "alokkushwaha78600@gmail.com") {
+        if (adminBtn) {
+            adminBtn.style.display = 'inline-block';
+        }
+    } else {
+        // Check if user is admin in the database
+        checkDatabaseForAdminStatus(user);
+    }
+}
+
+// Check database for admin status
+function checkDatabaseForAdminStatus(user) {
+    // Check if users collection exists and user has admin flag
+    firebaseDb.collection('users').doc(user.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                const userData = doc.data();
+                if (userData.isAdmin && adminBtn) {
+                    adminBtn.style.display = 'inline-block';
+                } else if (adminBtn) {
+                    adminBtn.style.display = 'none';
+                }
+            } else {
+                // Create user document if it doesn't exist
+                createUserDocument(user);
+            }
+        })
+        .catch(error => {
+            console.error("Error checking admin status:", error);
+            if (adminBtn) {
+                adminBtn.style.display = 'none';
+            }
+        });
+}
+
+// Create user document
+function createUserDocument(user) {
+    const userData = {
+        uid: user.uid,
+        email: user.email,
+        isAdmin: false, // Default to false, admin will be set manually
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    firebaseDb.collection('users').doc(user.uid).set(userData)
+        .then(() => {
+            console.log("User document created");
+            if (adminBtn) {
+                adminBtn.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error("Error creating user document:", error);
+        });
 }
 
 // Login form submission
@@ -108,6 +177,10 @@ if (logoutBtn) {
         firebaseAuth.signOut()
             .then(() => {
                 console.log('User logged out successfully');
+                // Hide admin button on logout
+                if (adminBtn) {
+                    adminBtn.style.display = 'none';
+                }
             })
             .catch(error => {
                 console.error('Error logging out:', error);

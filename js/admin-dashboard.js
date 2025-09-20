@@ -481,7 +481,7 @@ function loadRecentProperties() {
             if (snapshot.empty) {
                 recentPropertiesTable.innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center">No properties found</td>
+                        <td colspan="6" class="text-center">No properties found</td>
                     </tr>
                 `;
                 return;
@@ -509,7 +509,10 @@ function loadRecentProperties() {
                     userDocs.forEach(userDoc => {
                         if (userDoc.exists) {
                             const userData = userDoc.data();
-                            userMap[userData.uid] = userData.email;
+                            userMap[userData.uid] = {
+                                email: userData.email,
+                                createdAt: userData.createdAt
+                            };
                         }
                     });
                     
@@ -520,8 +523,12 @@ function loadRecentProperties() {
                             new Date(property.createdAt.toDate ? property.createdAt.toDate() : property.createdAt).toLocaleDateString() : 
                             'Unknown';
                         
-                        const ownerEmail = property.userId && userMap[property.userId] ? 
+                        const ownerInfo = property.userId && userMap[property.userId] ? 
                             userMap[property.userId] : 
+                            { email: 'Unknown', createdAt: null };
+                        
+                        const memberSince = ownerInfo.createdAt ? 
+                            new Date(ownerInfo.createdAt.toDate ? ownerInfo.createdAt.toDate() : ownerInfo.createdAt).toLocaleDateString() : 
                             'Unknown';
                         
                         tableHTML += `
@@ -529,7 +536,10 @@ function loadRecentProperties() {
                                 <td>${property.title || 'Untitled'}</td>
                                 <td>₹${(property.price || 0).toLocaleString()}</td>
                                 <td>${property.location || 'Unknown'}</td>
-                                <td>${ownerEmail}</td>
+                                <td>
+                                    <div><strong>${ownerInfo.email}</strong></div>
+                                    <div class="small text-muted">Member since: ${memberSince}</div>
+                                </td>
                                 <td>${formattedDate}</td>
                             </tr>
                         `;
@@ -552,7 +562,10 @@ function loadRecentProperties() {
                                 <td>${property.title || 'Untitled'}</td>
                                 <td>₹${(property.price || 0).toLocaleString()}</td>
                                 <td>${property.location || 'Unknown'}</td>
-                                <td>Unknown</td>
+                                <td>
+                                    <div><strong>Unknown</strong></div>
+                                    <div class="small text-muted">Member since: Unknown</div>
+                                </td>
                                 <td>${formattedDate}</td>
                             </tr>
                         `;
@@ -565,7 +578,7 @@ function loadRecentProperties() {
             console.error("Error loading recent properties:", error);
             recentPropertiesTable.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center">Error loading properties</td>
+                    <td colspan="6" class="text-center">Error loading properties</td>
                 </tr>
             `;
         });

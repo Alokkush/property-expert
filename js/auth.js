@@ -21,10 +21,8 @@ firebaseAuth.onAuthStateChanged(user => {
     } else {
         // User is signed out
         showAuthUI();
-        // Hide admin button for non-authenticated users
-        if (adminBtn) {
-            adminBtn.style.display = 'none';
-        }
+        // Keep admin button visible for non-authenticated visitors
+        // It will only be hidden for non-admin users after they log in
     }
 });
 
@@ -73,6 +71,7 @@ function checkDatabaseForAdminStatus(user) {
                 if (userData.isAdmin && adminBtn) {
                     adminBtn.style.display = 'inline-block';
                 } else if (adminBtn) {
+                    // Only hide the admin button if it exists and user is not admin
                     adminBtn.style.display = 'none';
                 }
             } else {
@@ -83,6 +82,7 @@ function checkDatabaseForAdminStatus(user) {
         .catch(error => {
             console.error("Error checking admin status:", error);
             if (adminBtn) {
+                // Hide admin button on error
                 adminBtn.style.display = 'none';
             }
         });

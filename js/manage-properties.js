@@ -27,7 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load user properties
     loadUserProperties();
+    
+    // Ensure admin dashboard visibility is checked
+    checkAdminDashboardVisibility();
 });
+
+// Check admin dashboard visibility
+function checkAdminDashboardVisibility() {
+    console.log("Checking admin dashboard visibility");
+    // Small delay to ensure auth state is loaded
+    setTimeout(() => {
+        if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+            const user = window.firebaseAuth.currentUser;
+            console.log("Current user:", user.email);
+            // Check if user is admin
+            if (window.isAdminUser && window.isAdminUser(user)) {
+                console.log("User is admin, showing admin dashboard link");
+                const adminNav = document.getElementById('admin-dashboard-nav');
+                if (adminNav) {
+                    adminNav.style.display = 'block';
+                }
+            }
+        }
+    }, 500);
+}
 
 // Show loading spinner
 function showLoading(elementId) {

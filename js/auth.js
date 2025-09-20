@@ -38,9 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // User is signed out
                     showAuthUI();
                     // Hide admin dashboard link for non-authenticated users
-                    if (adminDashboardNav) {
-                        adminDashboardNav.style.display = 'none';
-                    }
+                    hideAdminDashboard();
                 }
             });
         } else {
@@ -48,9 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show auth UI if Firebase is not initialized
             showAuthUI();
             // Hide admin dashboard link if Firebase is not initialized
-            if (adminDashboardNav) {
-                adminDashboardNav.style.display = 'none';
-            }
+            hideAdminDashboard();
         }
     }, 100);
 });
@@ -75,6 +71,36 @@ function showAuthUI() {
     if (userInfo) userInfo.classList.add('d-none');
 }
 
+// Show admin dashboard link
+function showAdminDashboard() {
+    console.log('Showing admin dashboard link');
+    if (adminDashboardNav) {
+        adminDashboardNav.style.display = 'block';
+    } else {
+        // Try to find the element again in case it wasn't available earlier
+        const navElement = document.getElementById('admin-dashboard-nav');
+        if (navElement) {
+            navElement.style.display = 'block';
+        } else {
+            console.log('Admin dashboard nav element still not found');
+        }
+    }
+}
+
+// Hide admin dashboard link
+function hideAdminDashboard() {
+    console.log('Hiding admin dashboard link');
+    if (adminDashboardNav) {
+        adminDashboardNav.style.display = 'none';
+    } else {
+        // Try to find the element again in case it wasn't available earlier
+        const navElement = document.getElementById('admin-dashboard-nav');
+        if (navElement) {
+            navElement.style.display = 'none';
+        }
+    }
+}
+
 // Check if user is admin
 function checkAdminStatus(user) {
     console.log('Checking admin status for user:', user.email);
@@ -83,15 +109,11 @@ function checkAdminStatus(user) {
     if (ADMIN_EMAILS.includes(user.email)) {
         console.log('User is admin, showing admin dashboard link');
         // Show admin dashboard link for admin users
-        if (adminDashboardNav) {
-            adminDashboardNav.style.display = 'block';
-        }
+        showAdminDashboard();
     } else {
         console.log('User is not admin, hiding admin dashboard link');
         // Hide admin dashboard link for non-admin users
-        if (adminDashboardNav) {
-            adminDashboardNav.style.display = 'none';
-        }
+        hideAdminDashboard();
     }
 }
 
@@ -194,9 +216,9 @@ if (logoutBtn) {
                 .then(() => {
                     console.log('User logged out successfully');
                     // Hide admin dashboard link on logout
-                    if (adminDashboardNav) {
-                        adminDashboardNav.style.display = 'none';
-                    }
+                    hideAdminDashboard();
+                    // Redirect to index.html after logout
+                    window.location.href = 'index.html';
                 })
                 .catch(error => {
                     console.error('Error logging out:', error);

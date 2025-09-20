@@ -66,6 +66,7 @@ if (adminLoginForm) {
                 }
             })
             .catch(error => {
+                console.error("Firebase authentication error:", error);
                 // If Firebase auth fails, check against hardcoded credentials
                 if (validateAdminCredentials(email, password)) {
                     // For demo purposes, we'll allow login with hardcoded credentials

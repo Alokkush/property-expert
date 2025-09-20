@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Redirect to login page
 function redirectToLogin() {
-    window.location.href = 'index.html';
+    window.location.href = 'admin-login.html';
 }
 
 // Check if user has admin access
@@ -146,8 +146,11 @@ function checkAdminAccess(user) {
         console.log("Admin access granted");
         loadAdminData();
     } else {
-        // Check if there are any admins in the database
-        checkForExistingAdmins(user);
+        // Show error message and redirect to admin login
+        showErrorMessage('Access denied. Admin privileges required.');
+        setTimeout(() => {
+            redirectToLogin();
+        }, 3000);
     }
 }
 
@@ -171,8 +174,11 @@ function checkForExistingAdmins(currentUser) {
         })
         .catch(error => {
             console.error("Error checking for existing users:", error);
-            // Redirect to home page if there's an error
-            redirectToLogin();
+            // Redirect to admin login page if there's an error
+            showErrorMessage('Access denied. Admin privileges required.');
+            setTimeout(() => {
+                redirectToLogin();
+            }, 3000);
         });
 }
 
@@ -194,8 +200,11 @@ function makeUserAdmin(user) {
         })
         .catch(error => {
             console.error("Error making user admin:", error);
-            // Redirect to home page if there's an error
-            redirectToLogin();
+            // Redirect to admin login page if there's an error
+            showErrorMessage('Access denied. Admin privileges required.');
+            setTimeout(() => {
+                redirectToLogin();
+            }, 3000);
         });
 }
 
@@ -226,7 +235,7 @@ function checkIfUserIsAdmin(user) {
         })
         .catch(error => {
             console.error("Error checking user admin status:", error);
-            // Redirect to home page
+            // Redirect to admin login page
             showErrorMessage('Access denied. Error checking permissions.');
             setTimeout(() => {
                 redirectToLogin();

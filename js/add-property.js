@@ -44,7 +44,7 @@ if (propertyForm) {
             contact,
             imageUrl,
             searchTerms,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
         };
         
         // Save to Firestore
@@ -64,7 +64,7 @@ function saveProperty(property) {
     }
     
     // Check if user is authenticated
-    const user = firebaseAuth.currentUser;
+    const user = window.firebaseAuth.currentUser;
     
     if (!user) {
         console.log("User not authenticated");
@@ -85,7 +85,7 @@ function saveProperty(property) {
     property.userId = user.uid;
     
     // Save to Firestore
-    firebaseDb.collection('properties')
+    window.firebaseDb.collection('properties')
         .add(property)
         .then(docRef => {
             console.log('Property added with ID:', docRef.id);

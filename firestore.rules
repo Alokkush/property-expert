@@ -1,9 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to properties collection for authenticated users
-    match /properties/{document} {
-      allow read, write: if request.auth != null;
+    // Properties collection
+    match /properties/{propertyId} {
+      // Allow read access to all users
+      allow read: if true;
+      
+      // Allow create access to authenticated users
+      allow create: if request.auth != null;
+      
+      // Allow update/delete only to property owners or admins
+      allow update, delete: if request.auth != null && 
+                             (request.auth.uid == resource.data.userId ||
+                              request.auth.token.email == 'admin@gmail.com');
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow read access to authenticated users or admins
+      allow read: if request.auth != null && 
+                   (request.auth.uid == userId || request.auth.token.email == 'admin@gmail.com');
+      
+      // Allow create access to authenticated users
+      allow create: if request.auth != null;
+      
+      // Allow update only to the user themselves or admins
+      allow update: if request.auth != null && 
+                     (request.auth.uid == userId || request.auth.token.email == 'admin@gmail.com');
     }
   }
 }

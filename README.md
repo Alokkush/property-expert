@@ -47,7 +47,7 @@ property-expert/
 │   ├── main.js             # Home page functionality and property loading
 │   ├── add-property.js     # Property creation logic
 │   ├── manage-properties.js # Property management functionality
-│   ├── admin-dashboard.js  # Admin dashboard analytics
+│   ├── admin-dashboard-new.js  # Admin dashboard analytics
 │   └── loading.js          # Loading utilities and UI helpers
 │
 └── images/                 # (Created after deployment)
@@ -64,9 +64,7 @@ property-expert/
 1. Clone or download this repository
 2. Open `index.html` in your web browser to view the application
 3. Sign up for an account to start adding properties
-4. For admin access, sign up with one of the following emails:
-   - admin@propertyexpert.com
-   - alokkushwaha78600@gmail.com
+4. For admin access, sign up with the following email:
    - admin@gmail.com (Note: Use a strong, unique password as "admin123" is commonly compromised)
 
 ### Admin Dashboard Access
@@ -188,9 +186,7 @@ The admin dashboard provides analytics and statistics for system administrators:
 - **Recent Properties Table**: List of recently added properties with owner information
 
 ### Access
-- Admin access is granted to users with specific emails:
-  - admin@propertyexpert.com
-  - alokkushwaha78600@gmail.com
+- Admin access is granted to users with the specific email:
   - admin@gmail.com (Note: Use a strong, unique password as "admin123" is commonly compromised)
 - The admin button only appears for authenticated admin users
 - Non-admin users attempting to access the dashboard directly will be redirected to the home page
@@ -327,3 +323,29 @@ For support, please refer to the documentation or contact the developer.
 - [Unsplash](https://unsplash.com/) - Demo images
 - [AOS](https://michalsnik.github.io/aos/) - Animation library
 - [Chart.js](https://www.chartjs.org/) - Data visualization library
+
+## Admin Access
+
+For admin access to the dashboard, use the following credentials:
+- Email: admin@gmail.com
+  Password: admin123 (Note: Use a strong, unique password as "admin123" is commonly compromised)
+
+## Testing User Accounts
+
+For testing regular user functionality, you can create accounts with any email. Here are some suggestions:
+- user1@example.com
+- user2@example.com
+
+Use simple passwords like "password123" for testing, but remember to use strong, unique passwords in production.
+
+## Security Notes
+
+### Admin Access
+- Only admin@gmail.com has admin privileges
+- Use a strong, unique password for the admin account
+- Never use default passwords like "admin123" in production
+
+### User Authentication
+- Firebase Authentication handles user registration and login
+- Passwords are securely hashed and stored
+- Session management is handled automatically by Firebase

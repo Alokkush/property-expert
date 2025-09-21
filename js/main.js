@@ -60,7 +60,7 @@ function addDemoProperties() {
     console.log("Checking if demo properties need to be added...");
     
     // Check if properties already exist
-    return firebaseDb.collection('properties')
+    return window.firebaseDb.collection('properties')
         .limit(1)
         .get()
         .then(snapshot => {
@@ -68,8 +68,8 @@ function addDemoProperties() {
             if (snapshot.empty) {
                 console.log("No properties found. Adding demo properties...");
                 // Add demo properties since none exist
-                const batch = firebaseDb.batch();
-                const propertiesCollection = firebaseDb.collection('properties');
+                const batch = window.firebaseDb.batch();
+                const propertiesCollection = window.firebaseDb.collection('properties');
                 
                 demoProperties.forEach((property, index) => {
                     // Add search terms and timestamp
@@ -81,7 +81,7 @@ function addDemoProperties() {
                             ...property.title.toLowerCase().split(' '),
                             ...property.location.toLowerCase().split(' ')
                         ],
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
                     };
                     
                     const newPropertyRef = propertiesCollection.doc();
@@ -207,7 +207,7 @@ function loadProperties() {
     }
     
     // Load ALL properties (no filtering)
-    firebaseDb.collection('properties')
+    window.firebaseDb.collection('properties')
         .get()
         .then(snapshot => {
             console.log("All properties loaded from Firestore. Count:", snapshot.size);
@@ -332,7 +332,7 @@ function searchProperties() {
     showLoading('properties-container');
     
     // Search in Firestore
-    firebaseDb.collection('properties')
+    window.firebaseDb.collection('properties')
         .where('searchTerms', 'array-contains', searchTerm)
         .get()
         .then(snapshot => {

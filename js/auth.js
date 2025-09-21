@@ -9,12 +9,9 @@ const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const loginError = document.getElementById('login-error');
 const signupError = document.getElementById('signup-error');
-const adminDashboardNav = document.getElementById('admin-dashboard-nav');
 
 // List of admin emails
 const ADMIN_EMAILS = [
-    "admin@propertyexpert.com",
-    "alokkushwaha78600@gmail.com",
     "admin@gmail.com"
 ];
 
@@ -26,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Check if firebaseAuth is available
         if (window.firebaseAuth) {
-            firebaseAuth.onAuthStateChanged(user => {
+            window.firebaseAuth.onAuthStateChanged(user => {
                 if (user) {
                     console.log('User is authenticated:', user.email);
                     // User is signed in
@@ -61,7 +58,7 @@ function showUserUI(user) {
     // Small delay to ensure DOM elements are fully loaded
     setTimeout(() => {
         checkAdminStatus(user);
-    }, 50);
+    }, 100);
 }
 
 // Show authentication buttons UI
@@ -74,30 +71,35 @@ function showAuthUI() {
 // Show admin dashboard link
 function showAdminDashboard() {
     console.log('Showing admin dashboard link');
+    // Try to find the element by ID first
+    const adminDashboardNav = document.getElementById('admin-dashboard-nav');
     if (adminDashboardNav) {
         adminDashboardNav.style.display = 'block';
     } else {
-        // Try to find the element again in case it wasn't available earlier
-        const navElement = document.getElementById('admin-dashboard-nav');
-        if (navElement) {
-            navElement.style.display = 'block';
-        } else {
-            console.log('Admin dashboard nav element still not found');
-        }
+        // If not found by ID, try to find it by class or other means
+        console.log('Admin dashboard nav element not found by ID, trying again after delay');
+        // Try again after a delay
+        setTimeout(() => {
+            const adminDashboardNav = document.getElementById('admin-dashboard-nav');
+            if (adminDashboardNav) {
+                adminDashboardNav.style.display = 'block';
+            } else {
+                console.log('Admin dashboard nav element still not found');
+            }
+        }, 500);
     }
 }
 
 // Hide admin dashboard link
 function hideAdminDashboard() {
     console.log('Hiding admin dashboard link');
+    // Try to find the element by ID first
+    const adminDashboardNav = document.getElementById('admin-dashboard-nav');
     if (adminDashboardNav) {
         adminDashboardNav.style.display = 'none';
     } else {
-        // Try to find the element again in case it wasn't available earlier
-        const navElement = document.getElementById('admin-dashboard-nav');
-        if (navElement) {
-            navElement.style.display = 'none';
-        }
+        // If not found by ID, try to find it by class or other means
+        console.log('Admin dashboard nav element not found by ID');
     }
 }
 
@@ -126,7 +128,7 @@ if (loginForm) {
         const password = document.getElementById('login-password').value;
         
         if (window.firebaseAuth) {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
+            window.firebaseAuth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     // Clear any previous errors
                     loginError.classList.add('d-none');
@@ -174,7 +176,7 @@ if (signupForm) {
         }
         
         if (window.firebaseAuth) {
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
+            window.firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     // Clear any previous errors
                     if (signupError) {
@@ -212,7 +214,7 @@ if (signupForm) {
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         if (window.firebaseAuth) {
-            firebaseAuth.signOut()
+            window.firebaseAuth.signOut()
                 .then(() => {
                     console.log('User logged out successfully');
                     // Hide admin dashboard link on logout
@@ -233,7 +235,7 @@ if (logoutBtn) {
 function checkAuth() {
     return new Promise((resolve, reject) => {
         if (window.firebaseAuth) {
-            firebaseAuth.onAuthStateChanged(user => {
+            window.firebaseAuth.onAuthStateChanged(user => {
                 if (user) {
                     resolve(user);
                 } else {

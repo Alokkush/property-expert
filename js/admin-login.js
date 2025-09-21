@@ -4,11 +4,16 @@
 const adminLoginForm = document.getElementById('admin-login-form');
 const adminLoginError = document.getElementById('admin-login-error');
 
+// List of admin emails - Updated to use admin@gmail.com
+const ADMIN_EMAILS = [
+    "admin@gmail.com"
+];
+
 // Check authentication state
 document.addEventListener('DOMContentLoaded', () => {
     // Check if user is already authenticated
     if (window.firebaseAuth) {
-        firebaseAuth.onAuthStateChanged(user => {
+        window.firebaseAuth.onAuthStateChanged(user => {
             if (user) {
                 // Check if user is admin
                 if (isAdminUser(user)) {
@@ -25,13 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Check if user is admin
 function isAdminUser(user) {
-    const adminEmails = [
-        "admin@propertyexpert.com",
-        "alokkushwaha78600@gmail.com",
-        "admin@gmail.com"
-    ];
-    
-    return adminEmails.includes(user.email);
+    return ADMIN_EMAILS.includes(user.email);
 }
 
 // Admin login form submission
@@ -42,9 +41,15 @@ if (adminLoginForm) {
         const email = document.getElementById('admin-email').value;
         const password = document.getElementById('admin-password').value;
         
+        // Validate email format
+        if (!isValidEmail(email)) {
+            showLoginError('Please enter a valid email address.');
+            return;
+        }
+        
         // First, try to authenticate with Firebase
         if (window.firebaseAuth) {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
+            window.firebaseAuth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     const user = userCredential.user;
                     
@@ -59,7 +64,7 @@ if (adminLoginForm) {
                         window.location.href = 'admin-dashboard.html';
                     } else {
                         // Sign out the user and show error
-                        firebaseAuth.signOut();
+                        window.firebaseAuth.signOut();
                         showLoginError('Access denied. Admin privileges required.');
                     }
                 })
@@ -72,6 +77,12 @@ if (adminLoginForm) {
             showLoginError('Authentication system not initialized. Please refresh the page.');
         }
     });
+}
+
+// Validate email format
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
 // Show login error

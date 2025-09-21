@@ -1,55 +1,100 @@
-// JavaScript for Manage Properties Page
+// Manage Properties JavaScript for Property Expert
 
 // DOM Elements
 const propertiesContainer = document.getElementById('properties-container');
 const noPropertiesMessage = document.getElementById('no-properties-message');
 const editPropertyForm = document.getElementById('edit-property-form');
-const deletePropertyModal = document.getElementById('deletePropertyModal');
+const editPropertyModal = document.getElementById('editPropertyModal');
 
 // Default image placeholder
 const DEFAULT_IMAGE_PLACEHOLDER = 'https://via.placeholder.com/400x300?text=No+Image+Available';
 const DEFAULT_DEMO_IMAGE = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
 
-// Load user's properties on page load
+// Check authentication state when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM loaded. Initializing property loading...");
+    console.log("DOM loaded, checking authentication state for manage properties");
     
-    // Set up edit form submission
-    if (editPropertyForm) {
-        editPropertyForm.addEventListener('submit', updateProperty);
-    }
-    
-    // Set up delete confirmation
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', deleteProperty);
-    }
-    
-    // Load user properties
-    loadUserProperties();
-    
-    // Ensure admin dashboard visibility is checked
-    checkAdminDashboardVisibility();
+    // Small delay to ensure DOM elements are fully loaded
+    setTimeout(() => {
+        // Check if firebaseAuth is available
+        if (window.firebaseAuth) {
+            window.firebaseAuth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log("User authenticated for manage properties:", user.email);
+                    // Show user info
+                    document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('auth-buttons').classList.add('d-none');
+                    document.getElementById('user-info').classList.remove('d-none');
+                    
+                    // Load user's properties
+                    loadUserProperties();
+                    
+                    // Check if user is admin
+                    checkAdminStatus(user);
+                } else {
+                    // User is not authenticated, redirect to login
+                    console.log("User not authenticated for manage properties, redirecting to login");
+                    window.location.href = 'index.html';
+                }
+            });
+        } else {
+            console.error("Firebase Auth not initialized for manage properties");
+            // Try again after a delay
+            setTimeout(() => {
+                if (window.firebaseAuth) {
+                    firebaseAuth.onAuthStateChanged(user => {
+                        if (user) {
+                            console.log("User authenticated after delay:", user.email);
+                            // Show user info
+                            document.getElementById('user-email').textContent = user.email;
+                            document.getElementById('auth-buttons').classList.add('d-none');
+                            document.getElementById('user-info').classList.remove('d-none');
+                            
+                            // Load user's properties
+                            loadUserProperties();
+                            
+                            // Check if user is admin
+                            checkAdminStatus(user);
+                        } else {
+                            // User is not authenticated, redirect to login
+                            console.log("User not authenticated after delay, redirecting to login");
+                            window.location.href = 'index.html';
+                        }
+                    });
+                } else {
+                    // Still not initialized, redirect to login
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        }
+    }, 100);
 });
 
-// Check admin dashboard visibility
-function checkAdminDashboardVisibility() {
-    console.log("Checking admin dashboard visibility");
-    // Small delay to ensure auth state is loaded
-    setTimeout(() => {
-        if (window.firebaseAuth && window.firebaseAuth.currentUser) {
-            const user = window.firebaseAuth.currentUser;
-            console.log("Current user:", user.email);
-            // Check if user is admin
-            if (window.isAdminUser && window.isAdminUser(user)) {
-                console.log("User is admin, showing admin dashboard link");
-                const adminNav = document.getElementById('admin-dashboard-nav');
-                if (adminNav) {
-                    adminNav.style.display = 'block';
-                }
+// Check if user is admin and show admin dashboard link
+function checkAdminStatus(user) {
+    console.log("Checking admin status in manage properties for user:", user.email);
+    if (user) {
+        console.log("Current user:", user.email);
+        // Check if user is admin
+        if (window.isAdminUser && window.isAdminUser(user)) {
+            console.log("User is admin, showing admin dashboard link");
+            // Try to find the element by ID first
+            const adminNav = document.getElementById('admin-dashboard-nav');
+            if (adminNav) {
+                adminNav.style.display = 'block';
+            } else {
+                // Try again after a delay
+                setTimeout(() => {
+                    const adminNav = document.getElementById('admin-dashboard-nav');
+                    if (adminNav) {
+                        adminNav.style.display = 'block';
+                    } else {
+                        console.log('Admin dashboard nav element still not found in manage properties');
+                    }
+                }, 500);
             }
         }
-    }, 500);
+    }
 }
 
 // Show loading spinner
@@ -98,12 +143,12 @@ function loadUserProperties() {
     }
     
     // Check if user is authenticated
-    const user = firebaseAuth.currentUser;
+    const user = window.firebaseAuth.currentUser;
     if (!user) {
         console.log("No user currently authenticated, waiting for auth state...");
         // Wait a bit for auth state to initialize, then check again
         setTimeout(() => {
-            const currentUser = firebaseAuth.currentUser;
+            const currentUser = window.firebaseAuth.currentUser;
             if (currentUser) {
                 console.log("User authenticated after delay:", currentUser.email);
                 fetchUserProperties(currentUser);
@@ -130,19 +175,25 @@ function fetchUserProperties(user) {
     console.log("Fetching properties for user:", user.uid);
     
     // Load user's properties using where clause
-    firebaseDb.collection('properties')
+    window.firebaseDb.collection('properties')
         .where('userId', '==', user.uid)
         .get()
         .then(snapshot => {
             console.log("User properties loaded from Firestore. Count:", snapshot.size);
             
             // Always hide the no properties message first
-            noPropertiesMessage.style.display = 'none';
+            if (noPropertiesMessage) {
+                noPropertiesMessage.style.display = 'none';
+            }
             
             if (snapshot.empty) {
                 // Handle empty case
-                propertiesContainer.innerHTML = '';
-                noPropertiesMessage.style.display = 'block';
+                if (propertiesContainer) {
+                    propertiesContainer.innerHTML = '';
+                }
+                if (noPropertiesMessage) {
+                    noPropertiesMessage.style.display = 'block';
+                }
                 return;
             }
             
@@ -175,7 +226,9 @@ function fetchUserProperties(user) {
                 propertiesHTML += createUserPropertyCard(property.id, property);
             });
             
-            propertiesContainer.innerHTML = propertiesHTML;
+            if (propertiesContainer) {
+                propertiesContainer.innerHTML = propertiesHTML;
+            }
             
             // Add animation delay to cards
             const cards = document.querySelectorAll('.property-card');
@@ -245,14 +298,12 @@ function createUserPropertyCard(id, property) {
                     <div class="mt-auto">
                         <small class="text-muted">Posted on ${formattedDate}</small>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('${id}', ${JSON.stringify(property).replace(/"/g, '&quot;')})">
-                            <i class="fas fa-edit"></i> Edit
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-primary btn-sm flex-grow-1" onclick="editProperty('${id}')">
+                            <i class="fas fa-edit me-1"></i>Edit
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteModal('${id}')">
-                            <i class="fas fa-trash"></i> Delete
+                        <button class="btn btn-danger btn-sm flex-grow-1" onclick="deleteProperty('${id}')">
+                            <i class="fas fa-trash me-1"></i>Delete
                         </button>
                     </div>
                 </div>
@@ -261,103 +312,155 @@ function createUserPropertyCard(id, property) {
     `;
 }
 
-// Open edit modal with property data
-function openEditModal(id, property) {
-    // Set form values
-    document.getElementById('edit-property-id').value = id;
-    document.getElementById('edit-property-title').value = property.title;
-    document.getElementById('edit-property-price').value = property.price;
-    document.getElementById('edit-property-location').value = property.location;
-    document.getElementById('edit-property-description').value = property.description;
-    document.getElementById('edit-property-contact').value = property.contact || '';
-    document.getElementById('edit-property-image').value = property.imageUrl || '';
+// Edit property function
+function editProperty(propertyId) {
+    console.log("Editing property:", propertyId);
     
-    // Update image preview
-    const imagePreview = document.getElementById('edit-image-preview');
-    if (imagePreview) {
-        imagePreview.src = property.imageUrl || DEFAULT_DEMO_IMAGE;
-        imagePreview.onerror = function() {
-            this.src = DEFAULT_IMAGE_PLACEHOLDER;
-        };
+    // Check if firebaseDb is available
+    if (!window.firebaseDb) {
+        console.error("Firebase DB not initialized");
+        alert('Database connection error. Please refresh the page.');
+        return;
     }
     
-    // Show modal
-    const editModal = new bootstrap.Modal(document.getElementById('editPropertyModal'));
-    editModal.show();
-}
-
-// Update property in Firestore
-function updateProperty(e) {
-    e.preventDefault();
-    
-    // Get form values
-    const id = document.getElementById('edit-property-id').value;
-    const title = document.getElementById('edit-property-title').value;
-    const price = parseFloat(document.getElementById('edit-property-price').value);
-    const location = document.getElementById('edit-property-location').value;
-    const description = document.getElementById('edit-property-description').value;
-    const contact = document.getElementById('edit-property-contact').value;
-    const imageUrl = document.getElementById('edit-property-image').value || DEFAULT_DEMO_IMAGE;
-    
-    // Create search terms array
-    const searchTerms = [
-        title.toLowerCase(),
-        location.toLowerCase(),
-        ...title.toLowerCase().split(' '),
-        ...location.toLowerCase().split(' ')
-    ];
-    
-    // Create updated property object
-    const updatedProperty = {
-        title,
-        price,
-        location,
-        description,
-        contact,
-        imageUrl,
-        searchTerms
-    };
-    
-    // Update in Firestore
-    firebaseDb.collection('properties').doc(id)
-        .update(updatedProperty)
-        .then(() => {
-            console.log('Property updated successfully');
-            // Close modal
-            const editModal = bootstrap.Modal.getInstance(document.getElementById('editPropertyModal'));
-            editModal.hide();
-            // Reload properties
-            loadUserProperties();
+    // Get property data from Firestore
+    window.firebaseDb.collection('properties').doc(propertyId).get()
+        .then(doc => {
+            if (doc.exists) {
+                const property = doc.data();
+                
+                // Fill form with property data
+                document.getElementById('edit-property-id').value = propertyId;
+                document.getElementById('edit-property-title').value = property.title || '';
+                document.getElementById('edit-property-price').value = property.price || '';
+                document.getElementById('edit-property-location').value = property.location || '';
+                document.getElementById('edit-property-description').value = property.description || '';
+                document.getElementById('edit-property-image').value = property.imageUrl || '';
+                document.getElementById('edit-property-contact').value = property.contact || '';
+                
+                // Update image preview
+                const imagePreview = document.getElementById('edit-image-preview');
+                if (imagePreview) {
+                    imagePreview.src = property.imageUrl || DEFAULT_DEMO_IMAGE;
+                }
+                
+                // Show modal
+                const modal = new bootstrap.Modal(editPropertyModal);
+                modal.show();
+            } else {
+                console.error("Property not found");
+                alert('Property not found.');
+            }
         })
         .catch(error => {
-            console.error('Error updating property:', error);
-            alert(`Error updating property: ${error.message}. Please try again.`);
+            console.error("Error getting property:", error);
+            alert('Error loading property data. Please try again.');
         });
 }
 
-// Open delete confirmation modal
-function openDeleteModal(id) {
-    document.getElementById('delete-property-id').value = id;
-    const deleteModal = new bootstrap.Modal(deletePropertyModal);
-    deleteModal.show();
-}
-
-// Delete property from Firestore
-function deleteProperty() {
-    const id = document.getElementById('delete-property-id').value;
+// Delete property function
+function deleteProperty(propertyId) {
+    console.log("Deleting property:", propertyId);
     
-    firebaseDb.collection('properties').doc(id)
-        .delete()
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+        return;
+    }
+    
+    // Check if firebaseDb is available
+    if (!window.firebaseDb) {
+        console.error("Firebase DB not initialized");
+        alert('Database connection error. Please refresh the page.');
+        return;
+    }
+    
+    // Delete property from Firestore
+    window.firebaseDb.collection('properties').doc(propertyId).delete()
         .then(() => {
-            console.log('Property deleted successfully');
-            // Close modal
-            const deleteModal = bootstrap.Modal.getInstance(deletePropertyModal);
-            deleteModal.hide();
+            console.log("Property deleted successfully");
             // Reload properties
             loadUserProperties();
+            // Show success message
+            alert('Property deleted successfully!');
         })
         .catch(error => {
-            console.error('Error deleting property:', error);
-            alert(`Error deleting property: ${error.message}. Please try again.`);
+            console.error("Error deleting property:", error);
+            alert('Error deleting property. Please try again.');
         });
+}
+
+// Handle edit property form submission
+if (editPropertyForm) {
+    editPropertyForm.addEventListener('submit', e => {
+        e.preventDefault();
+        
+        // Get form data
+        const propertyId = document.getElementById('edit-property-id').value;
+        const title = document.getElementById('edit-property-title').value;
+        const price = parseFloat(document.getElementById('edit-property-price').value);
+        const location = document.getElementById('edit-property-location').value;
+        const description = document.getElementById('edit-property-description').value;
+        const imageUrl = document.getElementById('edit-property-image').value;
+        const contact = document.getElementById('edit-property-contact').value;
+        
+        // Validate required fields
+        if (!title || !price || !location || !description || !imageUrl || !contact) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Check if firebaseDb is available
+        if (!window.firebaseDb) {
+            console.error("Firebase DB not initialized");
+            alert('Database connection error. Please refresh the page.');
+            return;
+        }
+        
+        // Update property in Firestore
+        window.firebaseDb.collection('properties').doc(propertyId).update({
+            title: title,
+            price: price,
+            location: location,
+            description: description,
+            imageUrl: imageUrl,
+            contact: contact,
+            updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            console.log("Property updated successfully");
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(editPropertyModal);
+            if (modal) {
+                modal.hide();
+            }
+            // Reload properties
+            loadUserProperties();
+            // Show success message
+            alert('Property updated successfully!');
+        })
+        .catch(error => {
+            console.error("Error updating property:", error);
+            alert('Error updating property. Please try again.');
+        });
+    });
+}
+
+// Update image preview when URL changes
+const editPropertyImage = document.getElementById('edit-property-image');
+if (editPropertyImage) {
+    editPropertyImage.addEventListener('input', () => {
+        const imagePreview = document.getElementById('edit-image-preview');
+        if (imagePreview) {
+            imagePreview.src = editPropertyImage.value || DEFAULT_DEMO_IMAGE;
+        }
+    });
+}
+
+// Handle delete confirmation
+const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', () => {
+        const propertyId = document.getElementById('delete-property-id').value;
+        deleteProperty(propertyId);
+    });
 }

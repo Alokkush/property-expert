@@ -1,4 +1,5 @@
 // Main JavaScript for Property Expert Home Page
+// Using global firebase object instead of imports for compatibility
 
 // DOM Elements
 const propertiesContainer = document.getElementById('properties-container');
@@ -60,16 +61,14 @@ function addDemoProperties() {
     console.log("Checking if demo properties need to be added...");
     
     // Check if properties already exist
-    return window.firebaseDb.collection('properties')
-        .limit(1)
-        .get()
+    return firebase.firestore().collection('properties').get()
         .then(snapshot => {
             console.log("Firestore query completed. Snapshot size:", snapshot.size);
             if (snapshot.empty) {
                 console.log("No properties found. Adding demo properties...");
                 // Add demo properties since none exist
-                const batch = window.firebaseDb.batch();
-                const propertiesCollection = window.firebaseDb.collection('properties');
+                const propertiesCollection = firebase.firestore().collection('properties');
+                const batch = firebase.firestore().batch();
                 
                 demoProperties.forEach((property, index) => {
                     // Add search terms and timestamp
@@ -81,7 +80,7 @@ function addDemoProperties() {
                             ...property.title.toLowerCase().split(' '),
                             ...property.location.toLowerCase().split(' ')
                         ],
-                        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.firestore().FieldValue.serverTimestamp()
                     };
                     
                     const newPropertyRef = propertiesCollection.doc();
@@ -120,20 +119,8 @@ function addDemoProperties() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Initializing property loading...");
     
-    // Add demo properties if database is empty
-    addDemoProperties()
-        .then((added) => {
-            console.log("Demo properties check completed. Added:", added);
-            // Load properties after a short delay to allow demo data to be inserted
-            setTimeout(() => {
-                loadProperties();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error("Error during demo properties insertion:", error);
-            // Still try to load properties even if demo insertion failed
-            loadProperties();
-        });
+    // DIRECTLY load properties without adding demo data
+    loadProperties();
     
     // Set up search functionality
     if (searchBtn) {
@@ -207,8 +194,7 @@ function loadProperties() {
     }
     
     // Load ALL properties (no filtering)
-    window.firebaseDb.collection('properties')
-        .get()
+    firebase.firestore().collection('properties').get()
         .then(snapshot => {
             console.log("All properties loaded from Firestore. Count:", snapshot.size);
             if (snapshot.empty) {
@@ -252,6 +238,8 @@ function loadProperties() {
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${index * 0.1}s`;
             });
+            
+            console.log("Properties successfully loaded and displayed");
         })
         .catch(error => {
             console.error('Error loading properties:', error);
@@ -332,9 +320,7 @@ function searchProperties() {
     showLoading('properties-container');
     
     // Search in Firestore
-    window.firebaseDb.collection('properties')
-        .where('searchTerms', 'array-contains', searchTerm)
-        .get()
+    firebase.firestore().collection('properties').where('searchTerms', 'array-contains', searchTerm).get()
         .then(snapshot => {
             if (snapshot.empty) {
                 showEmptyState('properties-container', 'No properties found', 'View All Properties', '#');

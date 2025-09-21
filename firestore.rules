@@ -18,15 +18,25 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       // Allow read access to authenticated users or admins
+      // For regular users, they can only read their own document
+      // For admins, they can read any document
       allow read: if request.auth != null && 
-                   (request.auth.uid == userId || request.auth.token.email == 'admin@gmail.com');
+                   (request.auth.uid == userId || 
+                    request.auth.token.email == 'admin@gmail.com');
       
       // Allow create access to authenticated users
       allow create: if request.auth != null;
       
       // Allow update only to the user themselves or admins
       allow update: if request.auth != null && 
-                     (request.auth.uid == userId || request.auth.token.email == 'admin@gmail.com');
+                     (request.auth.uid == userId || 
+                      request.auth.token.email == 'admin@gmail.com');
+    }
+    
+    // Allow admins to read all users (collection-level rule)
+    match /users/{document=**} {
+      allow read: if request.auth != null && 
+                   request.auth.token.email == 'admin@gmail.com';
     }
   }
 }

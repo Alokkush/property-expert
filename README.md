@@ -36,6 +36,8 @@ property-expert/
 ├── add-property.html       # Property creation form
 ├── manage-properties.html  # Property management dashboard
 ├── admin-dashboard.html    # Admin analytics dashboard
+├── delete-demo-data.html   # Tool to remove demo data
+├── test-user-creation.html # Tool to test user creation
 ├── README.md               # Project documentation
 │
 ├── css/
@@ -48,6 +50,7 @@ property-expert/
 │   ├── add-property.js     # Property creation logic
 │   ├── manage-properties.js # Property management functionality
 │   ├── admin-dashboard-new.js  # Admin dashboard analytics
+│   ├── delete-demo-data.js # Script to remove demo data
 │   └── loading.js          # Loading utilities and UI helpers
 │
 └── images/                 # (Created after deployment)
@@ -107,22 +110,34 @@ service cloud.firestore {
       // Allow create access to authenticated users
       allow create: if request.auth != null;
       
-      // Allow update/delete only to property owners
+      // Allow update/delete only to property owners or admins
       allow update, delete: if request.auth != null && 
-                             request.auth.uid == resource.data.userId;
+                             (request.auth.uid == resource.data.userId ||
+                              request.auth.token.email == 'admin@gmail.com');
     }
     
     // Users collection
     match /users/{userId} {
-      // Allow read access to authenticated users
-      allow read: if request.auth != null;
+      // Allow read access to authenticated users or admins
+      // For regular users, they can only read their own document
+      // For admins, they can read any document
+      allow read: if request.auth != null && 
+                   (request.auth.uid == userId || 
+                    request.auth.token.email == 'admin@gmail.com');
       
       // Allow create access to authenticated users
       allow create: if request.auth != null;
       
-      // Allow update only to the user themselves
+      // Allow update only to the user themselves or admins
       allow update: if request.auth != null && 
-                     request.auth.uid == userId;
+                     (request.auth.uid == userId || 
+                      request.auth.token.email == 'admin@gmail.com');
+    }
+    
+    // Allow admins to read all users (collection-level rule)
+    match /users/{document=**} {
+      allow read: if request.auth != null && 
+                   request.auth.token.email == 'admin@gmail.com';
     }
   }
 }
@@ -162,6 +177,20 @@ To add your own properties:
 2. Log in to the application
 3. Click "Add Property" to create your own listings
 
+### Removing Demo Data
+
+If you need to remove demo data to see real user data in the admin dashboard:
+
+1. Open `delete-demo-data.html` in your web browser
+2. Click the "Delete Demo Data" button
+3. Wait for the process to complete
+4. Refresh the admin dashboard to see updated data
+
+This is particularly useful when:
+- Admin dashboard shows demo properties instead of real user data
+- You want to start with a clean database
+- Testing with real user accounts
+
 ## 🖼 Demo Image URLs
 
 You can use these sample image URLs when adding properties:
@@ -184,6 +213,7 @@ The admin dashboard provides analytics and statistics for system administrators:
 - **Location Analytics**: Bar chart showing property distribution by location
 - **Time-based Analytics**: Line chart showing property additions over time
 - **Recent Properties Table**: List of recently added properties with owner information
+- **User Management**: List of all registered users with account information
 
 ### Access
 - Admin access is granted to users with the specific email:

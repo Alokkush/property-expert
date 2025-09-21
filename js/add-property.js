@@ -1,4 +1,5 @@
 // JavaScript for Add Property Page
+// Using global firebase object instead of imports for compatibility
 
 // DOM Elements
 const propertyForm = document.getElementById('property-form');
@@ -44,7 +45,7 @@ if (propertyForm) {
             contact,
             imageUrl,
             searchTerms,
-            createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
         // Save to Firestore
@@ -53,7 +54,7 @@ if (propertyForm) {
 }
 
 // Save property to Firestore
-function saveProperty(property) {
+async function saveProperty(property) {
     console.log("Saving property to Firestore...");
     
     // Check if firebaseAuth is available
@@ -85,23 +86,21 @@ function saveProperty(property) {
     property.userId = user.uid;
     
     // Save to Firestore
-    window.firebaseDb.collection('properties')
-        .add(property)
-        .then(docRef => {
-            console.log('Property added with ID:', docRef.id);
-            showSuccessMessage('Property added successfully!');
-            propertyForm.reset();
-        })
-        .catch(error => {
-            console.error('Error adding property:', error);
-            console.error('Error details:', {
-                name: error.name,
-                message: error.message,
-                code: error.code,
-                stack: error.stack
-            });
-            showErrorMessage(`Error adding property: ${error.message}. Please try again.`);
+    try {
+        const docRef = await firebase.firestore().collection('properties').add(property);
+        console.log('Property added with ID:', docRef.id);
+        showSuccessMessage('Property added successfully!');
+        propertyForm.reset();
+    } catch (error) {
+        console.error('Error adding property:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            stack: error.stack
         });
+        showErrorMessage(`Error adding property: ${error.message}. Please try again.`);
+    }
 }
 
 // Show success message

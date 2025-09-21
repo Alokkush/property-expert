@@ -1,4 +1,5 @@
 // Manage Properties JavaScript for Property Expert
+// Using global firebase object instead of imports for compatibility
 
 // DOM Elements
 const propertiesContainer = document.getElementById('properties-container');
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Try again after a delay
             setTimeout(() => {
                 if (window.firebaseAuth) {
-                    firebaseAuth.onAuthStateChanged(user => {
+                    window.firebaseAuth.onAuthStateChanged(user => {
                         if (user) {
                             console.log("User authenticated after delay:", user.email);
                             // Show user info
@@ -164,7 +165,7 @@ function loadUserProperties() {
 }
 
 // Fetch properties for a specific user
-function fetchUserProperties(user) {
+async function fetchUserProperties(user) {
     // Check if firebaseDb is available
     if (!window.firebaseDb) {
         console.error("Firebase DB not initialized");
@@ -174,91 +175,89 @@ function fetchUserProperties(user) {
     
     console.log("Fetching properties for user:", user.uid);
     
-    // Load user's properties using where clause
-    window.firebaseDb.collection('properties')
-        .where('userId', '==', user.uid)
-        .get()
-        .then(snapshot => {
-            console.log("User properties loaded from Firestore. Count:", snapshot.size);
-            
-            // Always hide the no properties message first
-            if (noPropertiesMessage) {
-                noPropertiesMessage.style.display = 'none';
-            }
-            
-            if (snapshot.empty) {
-                // Handle empty case
-                if (propertiesContainer) {
-                    propertiesContainer.innerHTML = '';
-                }
-                if (noPropertiesMessage) {
-                    noPropertiesMessage.style.display = 'block';
-                }
-                return;
-            }
-            
-            // Convert snapshot to array and sort by createdAt
-            const properties = [];
-            snapshot.forEach(doc => {
-                properties.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            // Sort by createdAt in descending order (newest first)
-            properties.sort((a, b) => {
-                // Handle cases where createdAt might be missing
-                if (!a.createdAt && !b.createdAt) return 0;
-                if (!a.createdAt) return 1;
-                if (!b.createdAt) return -1;
-                
-                // Convert to Date objects if they're Firestore timestamps
-                const dateA = a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
-                const dateB = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
-                
-                return dateB - dateA;
-            });
-            
-            // Generate HTML for properties
-            let propertiesHTML = '';
-            properties.forEach(property => {
-                propertiesHTML += createUserPropertyCard(property.id, property);
-            });
-            
+    try {
+        // Load user's properties using where clause
+        const snapshot = await firebase.firestore().collection('properties').where('userId', '==', user.uid).get();
+        
+        console.log("User properties loaded from Firestore. Count:", snapshot.size);
+        
+        // Always hide the no properties message first
+        if (noPropertiesMessage) {
+            noPropertiesMessage.style.display = 'none';
+        }
+        
+        if (snapshot.empty) {
+            // Handle empty case
             if (propertiesContainer) {
-                propertiesContainer.innerHTML = propertiesHTML;
+                propertiesContainer.innerHTML = '';
             }
-            
-            // Add animation delay to cards
-            const cards = document.querySelectorAll('.property-card');
-            if (cards.length > 0) {
-                cards.forEach((card, index) => {
-                    card.style.animationDelay = `${index * 0.1}s`;
-                });
+            if (noPropertiesMessage) {
+                noPropertiesMessage.style.display = 'block';
             }
-        })
-        .catch(error => {
-            console.error('Error loading properties:', error);
-            console.error('Error details:', {
-                name: error.name,
-                message: error.message,
-                code: error.code,
-                stack: error.stack
+            return;
+        }
+        
+        // Convert snapshot to array and sort by createdAt
+        const properties = [];
+        snapshot.forEach(doc => {
+            properties.push({
+                id: doc.id,
+                ...doc.data()
             });
-            
-            // Provide more specific error messages
-            let errorMessage = 'Error loading properties. Please try again later.';
-            if (error.code === 'permission-denied') {
-                errorMessage = 'Access denied. You may not have permission to view these properties.';
-            } else if (error.code === 'unavailable') {
-                errorMessage = 'Database unavailable. Please check your internet connection and try again.';
-            } else if (error.code === 'failed-precondition') {
-                errorMessage = 'Database index required. Please refresh the page or contact support.';
-            }
-            
-            showError('properties-container', errorMessage);
         });
+        
+        // Sort by createdAt in descending order (newest first)
+        properties.sort((a, b) => {
+            // Handle cases where createdAt might be missing
+            if (!a.createdAt && !b.createdAt) return 0;
+            if (!a.createdAt) return 1;
+            if (!b.createdAt) return -1;
+            
+            // Convert to Date objects if they're Firestore timestamps
+            const dateA = a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const dateB = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            
+            return dateB - dateA;
+        });
+        
+        // Generate HTML for properties
+        let propertiesHTML = '';
+        properties.forEach(property => {
+            propertiesHTML += createUserPropertyCard(property.id, property);
+        });
+        
+        if (propertiesContainer) {
+            propertiesContainer.innerHTML = propertiesHTML;
+        }
+        
+        // Add animation delay to cards
+        const cards = document.querySelectorAll('.property-card');
+        if (cards.length > 0) {
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+    } catch (error) {
+        console.error('Error loading properties:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        
+        // Provide more specific error messages
+        let errorMessage = 'Error loading properties. Please try again later.';
+        if (error.code === 'permission-denied') {
+            errorMessage = 'Access denied. You may not have permission to view these properties.';
+        } else if (error.code === 'unavailable') {
+            errorMessage = 'Database unavailable. Please check your internet connection and try again.';
+        } else if (error.code === 'failed-precondition') {
+            errorMessage = 'Database index required. Please refresh the page or contact support.';
+        }
+        
+        showError('properties-container', errorMessage);
+    }
 }
 
 // Create property card HTML for user's properties
@@ -313,7 +312,7 @@ function createUserPropertyCard(id, property) {
 }
 
 // Edit property function
-function editProperty(propertyId) {
+async function editProperty(propertyId) {
     console.log("Editing property:", propertyId);
     
     // Check if firebaseDb is available
@@ -323,43 +322,42 @@ function editProperty(propertyId) {
         return;
     }
     
-    // Get property data from Firestore
-    window.firebaseDb.collection('properties').doc(propertyId).get()
-        .then(doc => {
-            if (doc.exists) {
-                const property = doc.data();
-                
-                // Fill form with property data
-                document.getElementById('edit-property-id').value = propertyId;
-                document.getElementById('edit-property-title').value = property.title || '';
-                document.getElementById('edit-property-price').value = property.price || '';
-                document.getElementById('edit-property-location').value = property.location || '';
-                document.getElementById('edit-property-description').value = property.description || '';
-                document.getElementById('edit-property-image').value = property.imageUrl || '';
-                document.getElementById('edit-property-contact').value = property.contact || '';
-                
-                // Update image preview
-                const imagePreview = document.getElementById('edit-image-preview');
-                if (imagePreview) {
-                    imagePreview.src = property.imageUrl || DEFAULT_DEMO_IMAGE;
-                }
-                
-                // Show modal
-                const modal = new bootstrap.Modal(editPropertyModal);
-                modal.show();
-            } else {
-                console.error("Property not found");
-                alert('Property not found.');
+    try {
+        // Get property data from Firestore
+        const propertyDoc = await firebase.firestore().collection('properties').doc(propertyId).get();
+        if (propertyDoc.exists()) {
+            const property = propertyDoc.data();
+            
+            // Fill form with property data
+            document.getElementById('edit-property-id').value = propertyId;
+            document.getElementById('edit-property-title').value = property.title || '';
+            document.getElementById('edit-property-price').value = property.price || '';
+            document.getElementById('edit-property-location').value = property.location || '';
+            document.getElementById('edit-property-description').value = property.description || '';
+            document.getElementById('edit-property-image').value = property.imageUrl || '';
+            document.getElementById('edit-property-contact').value = property.contact || '';
+            
+            // Update image preview
+            const imagePreview = document.getElementById('edit-image-preview');
+            if (imagePreview) {
+                imagePreview.src = property.imageUrl || DEFAULT_DEMO_IMAGE;
             }
-        })
-        .catch(error => {
-            console.error("Error getting property:", error);
-            alert('Error loading property data. Please try again.');
-        });
+            
+            // Show modal
+            const modal = new bootstrap.Modal(editPropertyModal);
+            modal.show();
+        } else {
+            console.error("Property not found");
+            alert('Property not found.');
+        }
+    } catch (error) {
+        console.error("Error getting property:", error);
+        alert('Error loading property data. Please try again.');
+    }
 }
 
 // Delete property function
-function deleteProperty(propertyId) {
+async function deleteProperty(propertyId) {
     console.log("Deleting property:", propertyId);
     
     // Confirm deletion
@@ -374,24 +372,23 @@ function deleteProperty(propertyId) {
         return;
     }
     
-    // Delete property from Firestore
-    window.firebaseDb.collection('properties').doc(propertyId).delete()
-        .then(() => {
-            console.log("Property deleted successfully");
-            // Reload properties
-            loadUserProperties();
-            // Show success message
-            alert('Property deleted successfully!');
-        })
-        .catch(error => {
-            console.error("Error deleting property:", error);
-            alert('Error deleting property. Please try again.');
-        });
+    try {
+        // Delete property from Firestore
+        await firebase.firestore().collection('properties').doc(propertyId).delete();
+        console.log("Property deleted successfully");
+        // Reload properties
+        loadUserProperties();
+        // Show success message
+        alert('Property deleted successfully!');
+    } catch (error) {
+        console.error("Error deleting property:", error);
+        alert('Error deleting property. Please try again.');
+    }
 }
 
 // Handle edit property form submission
 if (editPropertyForm) {
-    editPropertyForm.addEventListener('submit', e => {
+    editPropertyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Get form data
@@ -416,17 +413,18 @@ if (editPropertyForm) {
             return;
         }
         
-        // Update property in Firestore
-        window.firebaseDb.collection('properties').doc(propertyId).update({
-            title: title,
-            price: price,
-            location: location,
-            description: description,
-            imageUrl: imageUrl,
-            contact: contact,
-            updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
+        try {
+            // Update property in Firestore
+            await updateDoc(doc(window.firebaseDb, 'properties', propertyId), {
+                title: title,
+                price: price,
+                location: location,
+                description: description,
+                imageUrl: imageUrl,
+                contact: contact,
+                updatedAt: serverTimestamp()
+            });
+            
             console.log("Property updated successfully");
             // Close modal
             const modal = bootstrap.Modal.getInstance(editPropertyModal);
@@ -437,11 +435,10 @@ if (editPropertyForm) {
             loadUserProperties();
             // Show success message
             alert('Property updated successfully!');
-        })
-        .catch(error => {
+        } catch (error) {
             console.error("Error updating property:", error);
             alert('Error updating property. Please try again.');
-        });
+        }
     });
 }
 

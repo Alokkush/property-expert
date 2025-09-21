@@ -1,20 +1,47 @@
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyDIUhahfQJlG2OQKv4Kx92H_YzeDayRiyw",
-    authDomain: "property-expert-11.firebaseapp.com",
-    projectId: "property-expert-11",
-    storageBucket: "property-expert-11.firebasestorage.app",
-    messagingSenderId: "1037467004096",
-    appId: "1:1037467004096:web:8989558248312edd575125"
-};
+// Firebase configuration
+console.log('Initializing Firebase...');
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Check if firebase is available
+if (typeof firebase === 'undefined') {
+    console.error('Firebase SDK not loaded. Please check your script includes.');
+} else {
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-HQLhJr2eT7HYz1K_ezztWhjwxi30Pig",
+      authDomain: "property-expert-10.firebaseapp.com",
+      projectId: "property-expert-10",
+      storageBucket: "property-expert-10.firebasestorage.app",
+      messagingSenderId: "302472088106",
+      appId: "1:302472088106:web:8d15da967a7ee261211153",
+      measurementId: "G-FYCCFFX9G7"
+    };
 
-// Initialize Firebase services
-const auth = firebase.auth();
-const db = firebase.firestore();
+    // Initialize Firebase
+    console.log('Firebase config:', firebaseConfig);
 
-// Export for use in other files
-window.firebaseAuth = auth;
-window.firebaseDb = db;
+    // Initialize Firebase using compat mode
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Export for use in other files
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    // Export Firebase auth functions
+    window.signInWithEmailAndPassword = function(email, password) {
+        return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+    window.createUserWithEmailAndPassword = function(email, password) {
+        return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+    window.signOut = function() {
+        return firebase.auth().signOut();
+    };
+    window.onAuthStateChanged = function(callback) {
+        return firebase.auth().onAuthStateChanged(callback);
+    };
+
+    console.log('Firebase initialized successfully');
+    console.log('Exported firebaseAuth:', window.firebaseAuth);
+    console.log('Exported firebaseDb:', window.firebaseDb);
+}

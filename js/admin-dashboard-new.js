@@ -1,5 +1,6 @@
 // Admin Dashboard JavaScript - New Implementation
 // This file handles all the admin dashboard functionality including data loading, chart rendering, and user management
+// Using global firebase object instead of imports for compatibility
 
 console.log('Admin Dashboard New Implementation Loaded');
 
@@ -201,7 +202,7 @@ async function loadStatistics() {
         }
         
         // Load properties count
-        const propertiesSnapshot = await window.firebaseDb.collection('properties').get();
+        const propertiesSnapshot = await firebase.firestore().collection('properties').get();
         const propertiesCount = propertiesSnapshot.size;
         console.log('Properties count:', propertiesCount);
         if (totalPropertiesEl) {
@@ -211,7 +212,7 @@ async function loadStatistics() {
         if (propertiesLoadingEl) propertiesLoadingEl.style.display = 'none';
         
         // Load users count
-        const usersSnapshot = await window.firebaseDb.collection('users').get();
+        const usersSnapshot = await firebase.firestore().collection('users').get();
         const usersCount = usersSnapshot.size;
         console.log('Users count:', usersCount);
         if (totalUsersEl) {
@@ -224,9 +225,7 @@ async function loadStatistics() {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         
-        const recentListingsSnapshot = await window.firebaseDb.collection('properties')
-            .where('createdAt', '>=', oneWeekAgo)
-            .get();
+        const recentListingsSnapshot = await firebase.firestore().collection('properties').where('createdAt', '>=', oneWeekAgo).get();
         const recentListingsCount = recentListingsSnapshot.size;
         console.log('Recent listings count:', recentListingsCount);
         if (recentListingsEl) {
@@ -239,7 +238,7 @@ async function loadStatistics() {
         let totalPrice = 0;
         let propertyCount = 0;
         
-        propertiesSnapshot.forEach(doc => {
+        usersSnapshot.forEach(doc => {
             const property = doc.data();
             if (property.price) {
                 totalPrice += property.price;
@@ -289,7 +288,7 @@ async function loadRecentProperties() {
         recentPropertiesTableEl.innerHTML = '<tr><td colspan="5" class="text-center"><span class="loading-spinner"></span> Loading recent properties...</td></tr>';
         
         // Get all properties for search functionality
-        const allPropertiesSnapshot = await window.firebaseDb.collection('properties').get();
+        const allPropertiesSnapshot = await firebase.firestore().collection('properties').get();
         
         // Store all properties for search
         allProperties = [];
@@ -301,15 +300,23 @@ async function loadRecentProperties() {
         });
         
         // Get recent properties (limit to 10)
-        const recentPropertiesSnapshot = await window.firebaseDb.collection('properties')
-            .orderBy('createdAt', 'desc')
-            .limit(10)
-            .get();
+        const recentPropertiesSnapshot = await firebase.firestore().collection('properties').orderBy('createdAt', 'desc').limit(10).get();
         
         console.log('Recent properties snapshot size:', recentPropertiesSnapshot.size);
         
         if (recentPropertiesSnapshot.empty) {
-            recentPropertiesTableEl.innerHTML = '<tr><td colspan="5" class="text-center">No properties found</td></tr>';
+            recentPropertiesTableEl.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">
+                        <div class="py-5">
+                            <i class="fas fa-home fa-3x mb-3 text-muted"></i>
+                            <h5>No Properties Found</h5>
+                            <p class="text-muted">There are currently no properties in the system.</p>
+                            <p class="text-muted">Properties will appear here after users add them.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
             if (listingsLoadingEl) listingsLoadingEl.style.display = 'none';
             return;
         }
@@ -350,7 +357,20 @@ async function loadRecentProperties() {
         console.error('Error loading recent properties:', error);
         const recentPropertiesTableEl = document.getElementById('recentPropertiesTable');
         if (recentPropertiesTableEl) {
-            recentPropertiesTableEl.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading properties: ' + error.message + '</td></tr>';
+            recentPropertiesTableEl.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        <div class="py-5">
+                            <i class="fas fa-exclamation-circle fa-3x mb-3 text-danger"></i>
+                            <h5>Error Loading Properties</h5>
+                            <p>${error.message}</p>
+                            <button class="btn btn-primary" onclick="loadRecentProperties()">
+                                <i class="fas fa-sync-alt me-2"></i>Retry
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
         }
         showErrorMessage('Failed to load recent properties: ' + error.message);
     }
@@ -383,7 +403,7 @@ async function loadAllUsers() {
         usersTableEl.innerHTML = '<tr><td colspan="4" class="text-center"><span class="loading-spinner"></span> Loading users data...</td></tr>';
         
         // Get all users
-        const usersSnapshot = await window.firebaseDb.collection('users').get();
+        const usersSnapshot = await firebase.firestore().collection('users').get();
         
         console.log('Users snapshot size:', usersSnapshot.size);
         
@@ -397,7 +417,18 @@ async function loadAllUsers() {
         });
         
         if (usersSnapshot.empty) {
-            usersTableEl.innerHTML = '<tr><td colspan="4" class="text-center">No users found</td></tr>';
+            usersTableEl.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center">
+                        <div class="py-5">
+                            <i class="fas fa-users fa-3x mb-3 text-muted"></i>
+                            <h5>No Users Found</h5>
+                            <p class="text-muted">There are currently no registered users in the system.</p>
+                            <p class="text-muted">Users will appear here after they sign up.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
             if (usersLoadingEl) usersLoadingEl.style.display = 'none';
             return;
         }
@@ -434,7 +465,20 @@ async function loadAllUsers() {
         console.error('Error loading users:', error);
         const usersTableEl = document.getElementById('usersTable');
         if (usersTableEl) {
-            usersTableEl.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading users: ' + error.message + '</td></tr>';
+            usersTableEl.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        <div class="py-5">
+                            <i class="fas fa-exclamation-circle fa-3x mb-3 text-danger"></i>
+                            <h5>Error Loading Users</h5>
+                            <p>${error.message}</p>
+                            <button class="btn btn-primary" onclick="loadAllUsers()">
+                                <i class="fas fa-sync-alt me-2"></i>Retry
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
         }
         showErrorMessage('Failed to load users: ' + error.message);
     }
@@ -474,7 +518,7 @@ async function loadChartData() {
         }
         
         // Load properties for charts
-        const propertiesSnapshot = await window.firebaseDb.collection('properties').get();
+        const propertiesSnapshot = await firebase.firestore().collection('properties').get();
         
         console.log('Properties for charts:', propertiesSnapshot.size);
         
@@ -658,11 +702,14 @@ async function checkAdminAccess() {
             return;
         }
         
-        window.firebaseAuth.onAuthStateChanged(async (user) => {
+        // Use the global firebase object directly instead of window.firebaseAuth
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('User authenticated:', user.email);
                 // Check if user's email is in the admin list
-                const ADMIN_EMAILS = ["admin@gmail.com"];
+                const ADMIN_EMAILS = [
+                    "admin@gmail.com"
+                ];
                 const isAdmin = ADMIN_EMAILS.includes(user.email);
                 
                 if (isAdmin) {
@@ -686,22 +733,6 @@ async function checkAdminAccess() {
             }
         });
     });
-}
-
-// Logout function
-function logout() {
-    if (window.firebaseAuth) {
-        window.firebaseAuth.signOut().then(() => {
-            console.log('User logged out successfully');
-            window.location.href = 'index.html';
-        }).catch((error) => {
-            console.error('Error logging out:', error);
-            showErrorMessage('Error logging out: ' + error.message);
-        });
-    } else {
-        console.error('Firebase Auth not available');
-        window.location.href = 'index.html';
-    }
 }
 
 // Initialize dashboard
@@ -772,7 +803,20 @@ async function initDashboard() {
         
         // Set up logout button
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', logout);
+            logoutBtn.addEventListener('click', () => {
+                if (window.firebaseAuth) {
+                    firebase.auth().signOut().then(() => {
+                        console.log('User logged out successfully');
+                        window.location.href = 'index.html';
+                    }).catch((error) => {
+                        console.error('Error logging out:', error);
+                        showErrorMessage('Error logging out: ' + error.message);
+                    });
+                } else {
+                    console.error('Firebase Auth not available');
+                    window.location.href = 'index.html';
+                }
+            });
         }
         
         // Set up property search

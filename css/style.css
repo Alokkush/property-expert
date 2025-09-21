@@ -20,6 +20,7 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .hero-overlay {
@@ -57,8 +58,21 @@ h1, h2, h3, h4, h5, h6 {
 
 .hero-card {
     background: rgba(255, 255, 255, 0.1);
+    /* Add fallback for browsers that don't support backdrop-filter */
+    background: rgba(255, 255, 255, 0.15);
+    background: -webkit-linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+    background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+    /* Backdrop filter with fallback */
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.hero-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .stat-number {
@@ -106,11 +120,14 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     background: #fff;
+    position: relative;
+    top: 0;
 }
 
 .property-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    top: -5px;
 }
 
 .property-image {
